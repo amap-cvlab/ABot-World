@@ -121,7 +121,7 @@ h1 {
 
 .hero-sub {
   margin: 18px auto 18px;
-  max-width: 860px;
+  max-width: 1024px;
   color: var(--muted);
   font-size: clamp(1.02rem, 1.55vw, 1.2rem);
   line-height: 1.58;
