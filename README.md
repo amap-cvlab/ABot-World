@@ -1,4 +1,4 @@
-# 🌍 ABot-World: Real-Time Interactive World Simulation on Desktop GPUs
+# 🌍 ABot-World: Real-Time Interactive World Simulation on a Single Desktop GPU
 
 [![Project](https://img.shields.io/badge/🌐%20%20Project-ABot%20%20World-blue.svg)](https://amap-cvlab.github.io/abot-world/)
 [![Paper](https://img.shields.io/badge/Arxiv-Coming_Soon-red)](#)
@@ -30,6 +30,8 @@ Experience fluid and consistent generation as you interact with the environment.
 A continuous, uninterrupted rollout showcasing the power of our Parametric Memory. Through a highly compute-efficient architecture, ABot-World sustains strict global state topology and physical consistency over extended durations, generating expansive environments locally on a single Desktop GPU.
 
 *<img src="assets/gifs/long-horizon.gif" width="800" alt="Long Horizon World Exploration Demo">*
+
+🔗 **[Explore our previous work FantasyWorld](https://fantasy-amap.github.io/fantasy-world/)**
 
 ### 3. Embodied Interaction & Physics Alignment (ABot-PhysWorld)
 A specialized variant of our foundation model, **ABot-PhysWorld**, focuses on robotic manipulation. It uses a novel DPO-based post-training framework with decoupled discriminators to actively suppress unphysical behaviors like object penetration and anti-gravity motion. A parallel context block enables precise spatial action injection for cross-embodiment control.

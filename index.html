@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#020307" />
+    <style>
+      html,
+      body {
+        background: #020307;
+      }
+    </style>
+    <title>ABot-World | Real-Time Interactive World Model</title>
+    <meta
+      name="description"
+      content="ABot-World is a next-generation action-conditioned world model with real-time interactive inference on a single desktop GPU."
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+    <div class="bg-grid"></div>
+
+    <header class="hero">
+      <p class="brand">ABot-World</p>
+      <h1>Real-Time Interactive World Simulation on a Single Desktop GPU</h1>
+      <p class="hero-sub">
+        A next-generation action-conditioned world model for interactive, physically coherent long-horizon rollouts.
+      </p>
+      <div class="release-actions" aria-label="Upcoming release links">
+        <a class="release-btn is-disabled" href="#" aria-disabled="true" tabindex="-1">Tech Report</a>
+        <a class="release-btn is-disabled" href="#" aria-disabled="true" tabindex="-1">Code</a>
+        <a class="release-btn is-disabled" href="#" aria-disabled="true" tabindex="-1">Model</a>
+        <a class="release-btn is-disabled" href="#" aria-disabled="true" tabindex="-1">Playground</a>
+      </div>
+
+      <div class="intro-video-wrap">
+        <video
+          id="introVideo"
+          controls
+          autoplay
+          loop
+          playsinline
+          preload="metadata"
+        >
+          <source src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/video/ABot-World-intro-compress.mp4" type="video/mp4" />
+          Your browser does not support video playback.
+        </video>
+      </div>
+    </header>
+
+    <section class="highlights">
+      <article class="highlight-card">
+        <h3>Real-Time Desktop Inference</h3>
+        <p>Low-latency rollout generation on a single consumer desktop GPU.</p>
+      </article>
+      <article class="highlight-card">
+        <h3>Native Spatial Intelligence</h3>
+        <p>Unified visual rendering and physical priors directly in latent space.</p>
+      </article>
+      <article class="highlight-card">
+        <h3>Long-Horizon Consistency</h3>
+        <p>Parametric Memory preserves global topology over extended trajectories.</p>
+      </article>
+      <article class="highlight-card">
+        <h3>Top-Tier Physical Reasoning</h3>
+        <p>Strong benchmark performance on VBench 2.0, WorldArena, and WorldScore.</p>
+      </article>
+    </section>
+
+    <section class="worlds-section">
+      <div class="section-head">
+        <h2>Explore Our Created Worlds</h2>
+        <p>A continuous world lane. Click any bubble to expand and play.</p>
+      </div>
+
+      <div class="worlds-rail">
+        <div class="worlds-fade worlds-fade-left" aria-hidden="true"></div>
+        <div class="worlds-fade worlds-fade-right" aria-hidden="true"></div>
+        <button class="world-nav world-nav-prev" type="button" aria-label="Previous worlds">
+          &lt;
+        </button>
+        <div class="worlds-grid" id="worldsGrid">
+          <article class="world-card" data-world="0">
+            <button class="world-bubble" type="button" aria-label="Play Case 0 world">
+              <img src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/imgs/ABot-World-Case-0.png" alt="ABot-World case 0 preview" onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-0.png';" />
+              <video playsinline preload="metadata" controls>
+                <source src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/video/ABot-World-Case-0.mp4" type="video/mp4" />
+              </video>
+            </button>
+          </article>
+
+          <article class="world-card" data-world="1">
+            <button class="world-bubble" type="button" aria-label="Play Case 1 world">
+              <img src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/imgs/ABot-World-Case-1.png" alt="ABot-World case 1 preview" onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-1.png';" />
+              <video playsinline preload="metadata" controls>
+                <source src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/video/ABot-World-Case-1.mp4" type="video/mp4" />
+              </video>
+            </button>
+          </article>
+
+          <article class="world-card" data-world="2">
+            <button class="world-bubble" type="button" aria-label="Play Case 2 world">
+              <img src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/imgs/ABot-World-Case-2.png" alt="ABot-World case 2 preview" onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-2.png';" />
+              <video playsinline preload="metadata" controls>
+                <source src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/video/ABot-World-Case-2.mp4" type="video/mp4" />
+              </video>
+            </button>
+          </article>
+
+          <article class="world-card" data-world="3">
+            <button class="world-bubble" type="button" aria-label="Play Case 3 world">
+              <img src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/imgs/ABot-World-Case-3.png" alt="ABot-World case 3 preview" onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-3.png';" />
+              <video playsinline preload="metadata" controls>
+                <source src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/video/ABot-World-Case-3.mp4" type="video/mp4" />
+              </video>
+            </button>
+          </article>
+
+          <article class="world-card" data-world="4">
+            <button class="world-bubble" type="button" aria-label="Play Case 4 world">
+              <img src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/imgs/ABot-World-Case-4.png" alt="ABot-World case 4 preview" onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-4.png';" />
+              <video playsinline preload="metadata" controls>
+                <source src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/video/ABot-World-Case-4.mp4" type="video/mp4" />
+              </video>
+            </button>
+          </article>
+
+          <article class="world-card" data-world="5">
+            <button class="world-bubble" type="button" aria-label="Play Case 5 world">
+              <img src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/imgs/ABot-World-Case-5.png" alt="ABot-World case 5 preview" onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-5.png';" />
+              <video playsinline preload="metadata" controls>
+                <source src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/video/ABot-World-Case-5.mp4" type="video/mp4" />
+              </video>
+            </button>
+          </article>
+
+          <article class="world-card" data-world="6">
+            <button class="world-bubble" type="button" aria-label="Play Case 6 world">
+              <img src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/imgs/ABot-World-Case-6.png" alt="ABot-World case 6 preview" onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-6.png';" />
+              <video playsinline preload="metadata" controls>
+                <source src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/video/ABot-World-Case-6.mp4" type="video/mp4" />
+              </video>
+            </button>
+          </article>
+
+          <article class="world-card" data-world="7">
+            <button class="world-bubble" type="button" aria-label="Play Case 7 world">
+              <img src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/imgs/ABot-World-Case-7.png" alt="ABot-World case 7 preview" onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-7.png';" />
+              <video playsinline preload="metadata" controls>
+                <source src="https://amap-user-ai-oss.oss-cn-beijing.aliyuncs.com/reclothing/abot-world/github/video/ABot-World-Case-7.mp4" type="video/mp4" />
+              </video>
+            </button>
+          </article>
+        </div>
+        <div class="world-player-view" id="worldPlayerView" hidden>
+          <video id="worldPlayerVideo" playsinline preload="metadata" controls></video>
+        </div>
+        <button class="world-nav world-nav-next" type="button" aria-label="Next worlds">
+          &gt;
+        </button>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>Copyright © 2026 Alibaba AMAP CV Lab. All rights reserved.</p>
+    </footer>
+
+    <script src="./js/main.js"></script>
+  </body>
+</html>

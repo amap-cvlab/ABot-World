@@ -2,6 +2,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
+.vscode/
 
 # C extensions
 *.so
@@ -205,3 +206,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Video Resources
+assets/video-ori
+assets/video
+compress.sh
