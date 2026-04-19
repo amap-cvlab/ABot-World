@@ -1,6 +1,6 @@
 # 🌍 ABot-World: Real-Time Interactive World Simulation on a Single Desktop GPU
 
-[![Project](https://img.shields.io/badge/🌐%20%20Project-ABot%20%20World-blue.svg)](https://amap-cvlab.github.io/abot-world/)
+[![Project](https://img.shields.io/badge/🌐%20%20Project-ABot%20%20World-blue.svg)](https://amap-cvlab.github.io/ABot-World/)
 [![Paper](https://img.shields.io/badge/Arxiv-Coming_Soon-red)](#)
 [![Code](https://img.shields.io/badge/Code-Coming_Soon-181717.svg?logo=GitHub)](https://github.com/amap-cvlab/ABot-World)
 [![Model](https://img.shields.io/badge/Weights-Coming_Soon-yellow)](#)
