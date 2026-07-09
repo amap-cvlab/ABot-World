@@ -1,4 +1,9 @@
-# 🌍 ABot-World: Infinite Interactive World Rollout on Single Desktop GPU
+<div align="center">
+  <img src="assets/gifs/ABot-World-0.gif">
+  <h1>ABot-World: Infinite Interactive World Rollout on Single Desktop GPU</h1>
+  ABot-World Team
+
+</div>
 
 [![Project](https://img.shields.io/badge/🌐%20%20Project-ABot%20%20World-blue.svg)](https://amap-cvlab.github.io/ABot-World/)
 [![Studio](https://img.shields.io/badge/🎮%20%20Studio-ABot%20%20World%20%20Studio-green.svg)](https://abot-world.amap.com)
