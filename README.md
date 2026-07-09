@@ -1,8 +1,6 @@
 <div align="center">
   <img src="assets/gifs/ABot-World-0.gif">
   <h1>ABot-World: Infinite Interactive World Rollout on Single Desktop GPU</h1>
-  ABot-World Team
-
 </div>
 
 [![Project](https://img.shields.io/badge/🌐%20%20Project-ABot%20%20World-blue.svg)](https://amap-cvlab.github.io/ABot-World/)
@@ -11,6 +9,11 @@
 [![Code](https://img.shields.io/badge/Code-GitHub-181717.svg?logo=GitHub)](https://github.com/amap-cvlab/ABot-World)
 [![Model](https://img.shields.io/static/v1?label=%F0%9F%A4%97%20Model&message=HuggingFace&color=yellow)](https://huggingface.co/acvlab/ABot-World-0-5B-LF)
 [![Model](https://img.shields.io/static/v1?label=%F0%9F%A4%96%20Model&message=ModelScope&color=purple)](https://modelscope.cn/models/amap_cvlab/ABot-World-0-5B-LF)
+
+
+<div align="center">
+  <h3>ABot-World Team</h3> <br>
+</div>  
 
 > **TL;DR:** ABot-World turns a single NVIDIA RTX 5090 desktop GPU into a real-time interactive world simulator, enabling infinite action-conditioned world rollout at 720P, 16 FPS, 1.2s latency, and 19GB GPU memory.
 
