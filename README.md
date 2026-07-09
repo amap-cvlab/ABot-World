@@ -117,3 +117,12 @@ If you find our work helpful, please cite our paper:
       year={2026}
 }
 ```
+
+## 🛰 Contact Us via WeChat Group
+Feel free to contact us!
+<div align="center">
+  <img src="http://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/abot-world-wechat.jpg" width=30%>
+</div>
+
+
+
