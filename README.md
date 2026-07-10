@@ -25,6 +25,7 @@
 * 🧠 **Open-Ended World Imagination:** Expands the world with new scenes and dynamics during rollout, avoiding scene lock-in, without prompt switching, by our *LongForcing* training.
 
 ## 📢 News
+- 2026-07-10: We have decided to open-source our `500-hour` video training dataset with accurate action annotations. Stay tuned—we plan to release it very soon.
 - 2026-07-09: We release the causal student model `ABot-World-0-5B-LF`, inference code, our local gradio demo and online playground [ABot World Studio](https://abot-world.amap.com).
 
 ## 🛠️ Setup
@@ -105,6 +106,7 @@ This project builds on and is inspired by the following open-source projects: [C
 - [x] Local Gradio Demo Release
 - [x] Causal Student Model Release
 - [ ] Bidirectional Teacher Model Release
+- [ ] 500-Hour Video Training Dataset with Accurate Action Annotations
 - [ ] Technical Report (Arxiv)
 
 ## 📝 Citation
