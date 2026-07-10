@@ -3,8 +3,8 @@
   <h1>ABot-World: Infinite Interactive World Rollout on Single Desktop GPU</h1>
 </div>
 
-[![Project](https://img.shields.io/badge/🌐%20%20Project-ABot%20%20World-blue.svg)](https://amap-cvlab.github.io/ABot-World/)
 [![Studio](https://img.shields.io/badge/🎮%20%20Studio-ABot%20%20World%20%20Studio-green.svg)](https://abot-world.amap.com)
+[![Project](https://img.shields.io/badge/🌐%20%20Project-ABot%20%20World-blue.svg)](https://amap-cvlab.github.io/ABot-World/)
 [![Paper](https://img.shields.io/badge/Arxiv-Coming_Soon-red)](#)
 [![Code](https://img.shields.io/badge/Code-GitHub-181717.svg?logo=GitHub)](https://github.com/amap-cvlab/ABot-World)
 [![Model](https://img.shields.io/static/v1?label=%F0%9F%A4%97%20Model&message=HuggingFace&color=yellow)](https://huggingface.co/acvlab/ABot-World-0-5B-LF)
