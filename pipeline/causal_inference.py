@@ -211,9 +211,26 @@ class CausalInferencePipeline(torch.nn.Module):
         else:
             vae = self.encoder if self.encoder is not None else self.vae
             vae_device = next(vae.parameters()).device
+            print(
+                f"[set_ref_latent_mask_from_exists_paths] encoding {len(resolved_paths)} refs "
+                f"on device={vae_device} (vae={type(vae).__name__})",
+                flush=True,
+            )
+            if vae_device.type == "cpu":
+                print(
+                    "[set_ref_latent_mask_from_exists_paths] WARNING: encoder is on CPU; "
+                    "Wan2.2 VAE encode will be extremely slow. "
+                    "Ensure pipeline.encoder is moved to CUDA in pipeline_loader.",
+                    flush=True,
+                )
 
             latents_list = []
-            for img_path in resolved_paths:
+            for i, img_path in enumerate(resolved_paths):
+                print(
+                    f"[set_ref_latent_mask_from_exists_paths] encode [{i+1}/{len(resolved_paths)}] "
+                    f"{img_path.name} ...",
+                    flush=True,
+                )
                 img = Image.open(img_path).convert("RGB")
                 img = img.resize((ref_resolution, ref_resolution))
                 image = self.preprocess_image(img, device=dev, torch_dtype=torch.bfloat16)

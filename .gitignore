@@ -212,3 +212,7 @@ assets/video-ori
 assets/video
 compress.sh
 website.sh
+
+# checkpoints
+.gradio_cache/
+checkpoints/

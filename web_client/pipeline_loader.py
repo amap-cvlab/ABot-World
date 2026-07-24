@@ -99,6 +99,13 @@ def _get_pipeline_cached(
         pipeline.text_encoder.to(device=gpu)
     pipeline.generator.to(device=gpu)
     pipeline.vae.to(device=gpu)
+    if getattr(pipeline, "encoder", None) is not None:
+        pipeline.encoder.to(device=gpu)
+        print(
+            f"[INIT] pipeline.encoder -> {gpu} "
+            f"(param_device={next(pipeline.encoder.parameters()).device})",
+            flush=True,
+        )
 
     if use_fp8_gemm:
         final_quant_type = str(quant_type) if quant_type is not None else str(
