@@ -205,8 +205,12 @@ def _run_single_quant(args, quant_type: str, quant_dir: Path) -> dict:
     )
 
     def _reset_for_stream() -> None:
+        print(">>> set_prompts start", flush=True)
         pipeline.set_prompts([_prompt], device=device)
+        print(">>> set_prompts done", flush=True)
+        print(">>> set_ref start", flush=True)
         pipeline.set_ref_latent_mask_from_exists_paths(ref_dir=_ref_cache_dir, device=device)
+        print(">>> set_ref done", flush=True)
         pipeline.reset_stream(1, dtype=dtype, device=device, initial_latent=None)
 
     def _run_stream_inference(input_blocks: int, decode: bool) -> dict:

@@ -174,16 +174,22 @@ def start_stream(prompt: str, ref_image_path=None, vae_type: str | None = None, 
     final_ref_image = state.ref_image_path or DEFAULT_REF_IMAGE
 
     pipeline.torch_dtype = torch.bfloat16
+    print(">>> set_prompts start", flush=True)
     pipeline.set_prompts([prompt], device=device)
+    print(">>> set_prompts done", flush=True)
     ref_img_hash = hashlib.md5(Path(final_ref_image).read_bytes()).hexdigest()[:16]
     ref_cache_dir = OUTPUT_DIR / "ref_image_cache" / ref_img_hash
     print(f"[REF][CACHE] Using ref cache dir: {final_ref_image} -> {ref_cache_dir}", flush=True)
+    print(">>> set_ref start", flush=True)
     pipeline.set_ref_latent_mask_from_exists_paths(ref_dir=str(ref_cache_dir), device=device)
+    print(">>> set_ref done", flush=True)
     pipeline.reset_stream(batch_size=1, dtype=torch.bfloat16, device=device, initial_latent=None)
+    print(">>> set_first_frame_latent start", flush=True)
     pipeline.set_first_frame_latent(
         final_ref_image,
         height=STREAM_HEIGHT, width=STREAM_WIDTH, device=device,
     )
+    print(">>> set_first_frame_latent done", flush=True)
 
     frame_queue = queue.Queue(maxsize=FRAME_QUEUE_SIZE)
     worker = threading.Thread(

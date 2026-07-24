@@ -30,14 +30,15 @@
 
 ## 📢 News
 
-- 2026
+- 2026-07-22: Release ABot-World-0 technical report.
 - 2026-07-13: ABot-World is now on [Reactor](https://reactor.inc/abot-world)!
 - 2026-07-10: We have decided to open-source our `500-hour` video training dataset with accurate action annotations. Stay tuned—we plan to release it very soon.
 - 2026-07-09: We release the causal student model `ABot-World-0-5B-LF`, inference code, our local gradio demo and online playground [ABot World Studio](https://abot-world.amap.com).
 
 ## 🛠️ Setup
 
-> This installation was tested on: Ubuntu 22.04, CUDA 13.3, NVIDIA RTX 5090.
+> This installation was tested on: Ubuntu 22.04, CUDA 12.8, Python 3.12, NVIDIA RTX 5090.
+> For common hardware and environment questions, see [FAQ.md](FAQ.md).
 
 1. Clone the repository:
 
@@ -46,15 +47,68 @@ git clone https://github.com/amap-cvlab/ABot-World.git
 cd ABot-World
 ```
 
-2. Install dependencies using conda:
+2. Create a conda environment:
 
 ```bash
 conda create -n aworld python=3.12 -y
 conda activate aworld
+```
+
+3. Install PyTorch (CUDA 12.8):
+
+```bash
+pip install torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 \
+  --index-url https://download.pytorch.org/whl/cu128
+```
+
+4. Install FlashAttention:
+
+```bash
+wget https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.1/flash_attn-2.8.1+cu12torch2.8cxx11abiFALSE-cp312-cp312-linux_x86_64.whl
+pip install flash_attn-2.8.1+cu12torch2.8cxx11abiFALSE-cp312-cp312-linux_x86_64.whl
+```
+
+If you encounter glibc version issues, please refer to [flash-attention#1708](https://github.com/Dao-AILab/flash-attention/issues/1708).
+
+5. Install SageAttention from source:
+
+Follow the official instructions at [SageAttention](https://github.com/thu-ml/SageAttention/tree/main):
+
+```bash
+git clone https://github.com/thu-ml/SageAttention.git
+cd SageAttention
+export EXT_PARALLEL=4 NVCC_APPEND_FLAGS="--threads 8" MAX_JOBS=32  # Optional
+python setup.py install
+cd ..
+```
+
+6. Install Python dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-3. Download checkpoints:
+7. Install `lightx2v_kernel`:
+
+```bash
+git clone https://github.com/NVIDIA/cutlass.git
+git clone https://github.com/ModelTC/LightX2V.git
+cd LightX2V/lightx2v_kernel
+
+# Set CUTLASS_PATH to the absolute path of the cutlass repository cloned above.
+MAX_JOBS=$(nproc) && CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) \
+uv build --wheel \
+    -Cbuild-dir=build . \
+    -Ccmake.define.CUTLASS_PATH=/path/to/cutlass \
+    --verbose \
+    --color=always \
+    --no-build-isolation
+
+pip install dist/*whl --force-reinstall --no-deps
+cd ../..
+```
+
+8. Download checkpoints:
 
 Download models using HuggingFace:
 
