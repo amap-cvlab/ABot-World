@@ -34,6 +34,7 @@
 
 ## 📢 News
 
+- 2026-09-08: Docker environment image is now available on Docker Hub and Alibaba Cloud Container Registry.
 - 2026-08-15: We released an experimental [24-hour uninterrupted rollout demo](https://amap-cvlab.github.io/abot-world-0-24h/). Check it out!
 - 2026-08-03: We released the dataset of `500-hour` training data.
 - 2026-07-22: Released ABot-World-0 technical report.
@@ -48,7 +49,9 @@
 
 ### 🐳 Option 1: Docker (Recommended)
 
-We provide a prebuilt environment image at [`docker.io/amapcvlab/abot-world:v0-env`](https://hub.docker.com/r/amapcvlab/abot-world), so you can skip the manual installation below. The image contains the runtime environment only; the repository and checkpoints are mounted at runtime:
+We provide a prebuilt environment image so you can skip the manual installation below. The image contains the runtime environment only; the repository and checkpoints are mounted at runtime.
+
+**Docker Hub** ([`docker.io/amapcvlab/abot-world:v0-env`](https://hub.docker.com/r/amapcvlab/abot-world)):
 
 ```bash
 git clone https://github.com/amap-cvlab/ABot-World.git
@@ -57,6 +60,17 @@ cd ABot-World
 # Download checkpoints (see "Download checkpoints" below), then:
 docker pull amapcvlab/abot-world:v0-env
 IMAGE=amapcvlab/abot-world:v0-env bash docker/run.sh
+```
+
+**Alibaba Cloud Container Registry** (recommended in China):
+
+```bash
+git clone https://github.com/amap-cvlab/ABot-World.git
+cd ABot-World
+
+# Download checkpoints (see "Download checkpoints" below), then:
+docker pull crpi-56gxy7bfn4owmfmn.cn-zhangjiakou.personal.cr.aliyuncs.com/amap-cvlab/abot-world:v0-env
+IMAGE=crpi-56gxy7bfn4owmfmn.cn-zhangjiakou.personal.cr.aliyuncs.com/amap-cvlab/abot-world:v0-env bash docker/run.sh
 ```
 
 Alternatively, build the image yourself with `bash docker/build.sh`. See [docker/README.md](docker/README.md) for build options, volume mounts, and troubleshooting.
