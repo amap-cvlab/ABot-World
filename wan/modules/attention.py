@@ -5,11 +5,16 @@ try:
     import flash_attn_interface
 
     def is_hopper_gpu():
-        """flashattn-hopper 仅支持 Hopper (H100)，不支持 Blackwell，故只检测 Hopper。"""
+        """flashattn-hopper targets sm_90 only (Hopper, not Blackwell).
+
+        Detect by compute capability rather than by product name: H200, H800
+        and H20 are sm_90 too, but their names contain neither "h100" nor
+        "hopper", so a name check silently routed them to FlashAttention 2.
+        """
         if not torch.cuda.is_available():
             return False
-        device_name = torch.cuda.get_device_name(0).lower()
-        return "h100" in device_name or "hopper" in device_name
+        major, _ = torch.cuda.get_device_capability(0)
+        return major == 9
     FLASH_ATTN_3_AVAILABLE = is_hopper_gpu()
 except ModuleNotFoundError:
     FLASH_ATTN_3_AVAILABLE = False
