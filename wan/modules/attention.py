@@ -165,6 +165,73 @@ __all__ = [
 ]
 
 
+def _sdpa_varlen_attention(
+    q,
+    k,
+    v,
+    q_lens=None,
+    k_lens=None,
+    dropout_p=0.,
+    softmax_scale=None,
+    causal=False,
+    window_size=(-1, -1),
+):
+    """
+    scaled_dot_product_attention with flash_attn_varlen_func semantics on padded inputs.
+
+    q: [B, Lq, Nq, C1]; k, v: [B, Lk, Nk, C] with Nq divisible by Nk.
+    Keys past k_lens are excluded, query rows past q_lens (or rows that see no
+    key at all) come back as zeros, and causal / sliding-window masks are
+    aligned to the bottom-right corner of each sequence the way the flash-attn
+    varlen kernels align them. With full lengths, no window and no causal
+    offset, no mask is built at all, so SDPA can still pick its fused kernels.
+    """
+    b, lq, lk = q.size(0), q.size(1), k.size(1)
+    device = q.device
+
+    def lengths(lens, full):
+        if lens is None:
+            return torch.full((b,), full, dtype=torch.long, device=device)
+        return lens.to(device=device, dtype=torch.long)
+
+    q_len = lengths(q_lens, lq)
+    k_len = lengths(k_lens, lk)
+    full_lengths = bool((q_len == lq).all()) and bool((k_len == lk).all())
+    has_window = window_size[0] >= 0 or window_size[1] >= 0
+
+    q = q.transpose(1, 2)
+    k = k.transpose(1, 2)
+    v = v.transpose(1, 2)
+    if k.size(1) != q.size(1):
+        repeat = q.size(1) // k.size(1)
+        k = k.repeat_interleave(repeat, dim=1)
+        v = v.repeat_interleave(repeat, dim=1)
+
+    if full_lengths and not has_window and (not causal or lq == lk):
+        out = torch.nn.functional.scaled_dot_product_attention(
+            q, k, v, dropout_p=dropout_p, is_causal=causal, scale=softmax_scale)
+        return out.transpose(1, 2)
+
+    q_idx = torch.arange(lq, device=device)
+    k_idx = torch.arange(lk, device=device)
+    allowed = (k_idx[None, :] < k_len[:, None])[:, None, None, :]
+    if causal or has_window:
+        # query i of a sequence lines up with key i + (k_len - q_len)
+        diag = q_idx[None, :, None] + (k_len - q_len)[:, None, None]
+        band = torch.ones(b, lq, lk, dtype=torch.bool, device=device)
+        right = 0 if causal else window_size[1]
+        if right >= 0:
+            band = band & (k_idx[None, None, :] <= diag + right)
+        if window_size[0] >= 0:
+            band = band & (k_idx[None, None, :] >= diag - window_size[0])
+        allowed = allowed & band[:, None]
+    keep = (q_idx[None, :] < q_len[:, None])[:, None, :, None] & allowed.any(dim=-1, keepdim=True)
+    # rows that are dropped anyway attend everywhere, so SDPA never sees an all -inf row
+    out = torch.nn.functional.scaled_dot_product_attention(
+        q, k, v, attn_mask=allowed | ~keep, dropout_p=dropout_p, scale=softmax_scale)
+    return out.masked_fill(~keep, 0).transpose(1, 2)
+
+
 def flash_attention(
     q,
     k,
@@ -195,13 +262,32 @@ def flash_attention(
     """
     half_dtypes = (torch.float16, torch.bfloat16)
     assert dtype in half_dtypes
-    assert q.device.type == 'cuda' and q.size(-1) <= 256
 
     # params
     b, lq, lk, out_dtype = q.size(0), q.size(1), k.size(1), q.dtype
 
     def half(x):
         return x if x.dtype in half_dtypes else x.to(dtype)
+
+    if not (FLASH_ATTN_3_AVAILABLE or FLASH_ATTN_2_AVAILABLE):
+        # No flash-attn build on this machine (for example an AMD ROCm GPU): same
+        # inputs, same padding semantics, computed with scaled_dot_product_attention.
+        v = half(v)
+        q = half(q).to(v.dtype)
+        k = half(k).to(v.dtype)
+        if q_scale is not None:
+            q = q * q_scale
+        x = _sdpa_varlen_attention(
+            q, k, v,
+            q_lens=q_lens,
+            k_lens=k_lens,
+            dropout_p=dropout_p,
+            softmax_scale=softmax_scale,
+            causal=causal,
+            window_size=window_size)
+        return x.type(out_dtype)
+
+    assert q.device.type == 'cuda' and q.size(-1) <= 256
 
     # preprocess query
     if q_lens is None:
