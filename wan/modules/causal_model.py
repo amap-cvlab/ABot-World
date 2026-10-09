@@ -26,7 +26,6 @@ from wan.modules.model import (
     WanSelfAttention,
 )
 
-from wan.modules.attention import flash_attention
 
 
 # ===== Debug helpers：只在异常/即将越界时打印，正常路径不刷日志 =====
@@ -1194,7 +1193,7 @@ class CausalWanCrossAttention(WanSelfAttention):
             k = self.norm_k(self.k(context)).view(b, -1, n, d)
             v = self.v(context).view(b, -1, n, d)
 
-        x = flash_attention(q, k, v, k_lens=context_lens)
+        x = attention(q, k, v, k_lens=context_lens, backend='flash_attn')
         x = x.flatten(2)
         x = self.o(x)
         return x
@@ -1231,8 +1230,8 @@ class CausalWanI2VCrossAttention(WanI2VCrossAttention):
             k = self.norm_k(self.k(context)).view(b, -1, n, d)
             v = self.v(context).view(b, -1, n, d)
 
-        img_x = flash_attention(q, k_img, v_img, k_lens=None)
-        x = flash_attention(q, k, v, k_lens=context_lens)
+        img_x = attention(q, k_img, v_img, k_lens=None, backend='flash_attn')
+        x = attention(q, k, v, k_lens=context_lens, backend='flash_attn')
 
         x = x.flatten(2)
         img_x = img_x.flatten(2)

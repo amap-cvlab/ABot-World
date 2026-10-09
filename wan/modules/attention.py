@@ -391,6 +391,73 @@ def sla_triton(
     return out
 
 
+def _sdpa_varlen_attention(
+    q,
+    k,
+    v,
+    q_lens=None,
+    k_lens=None,
+    dropout_p=0.,
+    softmax_scale=None,
+    causal=False,
+    window_size=(-1, -1),
+):
+    """
+    scaled_dot_product_attention with flash_attn_varlen_func semantics on padded inputs.
+
+    q: [B, Lq, Nq, C1]; k, v: [B, Lk, Nk, C] with Nq divisible by Nk.
+    Keys past k_lens are excluded, query rows past q_lens (or rows that see no
+    key at all) come back as zeros, and causal / sliding-window masks are
+    aligned to the bottom-right corner of each sequence the way the flash-attn
+    varlen kernels align them. With full lengths, no window and no causal
+    offset, no mask is built at all, so SDPA can still pick its fused kernels.
+    """
+    b, lq, lk = q.size(0), q.size(1), k.size(1)
+    device = q.device
+
+    def lengths(lens, full):
+        if lens is None:
+            return torch.full((b,), full, dtype=torch.long, device=device)
+        return lens.to(device=device, dtype=torch.long)
+
+    q_len = lengths(q_lens, lq)
+    k_len = lengths(k_lens, lk)
+    full_lengths = bool((q_len == lq).all()) and bool((k_len == lk).all())
+    has_window = window_size[0] >= 0 or window_size[1] >= 0
+
+    q = q.transpose(1, 2)
+    k = k.transpose(1, 2)
+    v = v.transpose(1, 2)
+    if k.size(1) != q.size(1):
+        repeat = q.size(1) // k.size(1)
+        k = k.repeat_interleave(repeat, dim=1)
+        v = v.repeat_interleave(repeat, dim=1)
+
+    if full_lengths and not has_window and (not causal or lq == lk):
+        out = torch.nn.functional.scaled_dot_product_attention(
+            q, k, v, dropout_p=dropout_p, is_causal=causal, scale=softmax_scale)
+        return out.transpose(1, 2)
+
+    q_idx = torch.arange(lq, device=device)
+    k_idx = torch.arange(lk, device=device)
+    allowed = (k_idx[None, :] < k_len[:, None])[:, None, None, :]
+    if causal or has_window:
+        # query i of a sequence lines up with key i + (k_len - q_len)
+        diag = q_idx[None, :, None] + (k_len - q_len)[:, None, None]
+        band = torch.ones(b, lq, lk, dtype=torch.bool, device=device)
+        right = 0 if causal else window_size[1]
+        if right >= 0:
+            band = band & (k_idx[None, None, :] <= diag + right)
+        if window_size[0] >= 0:
+            band = band & (k_idx[None, None, :] >= diag - window_size[0])
+        allowed = allowed & band[:, None]
+    keep = (q_idx[None, :] < q_len[:, None])[:, None, :, None] & allowed.any(dim=-1, keepdim=True)
+    # rows that are dropped anyway attend everywhere, so SDPA never sees an all -inf row
+    out = torch.nn.functional.scaled_dot_product_attention(
+        q, k, v, attn_mask=allowed | ~keep, dropout_p=dropout_p, scale=softmax_scale)
+    return out.masked_fill(~keep, 0).transpose(1, 2)
+
+
 def attention(
     q,
     k,
@@ -411,9 +478,19 @@ def attention(
     """
     backend: 'auto' | 'sageattn3' | 'sageattn' | 'flash_attn_3' | 'flash_attn_2' | 'flash_attn' | 'sdpa'
       - 'auto': 按 ATTN_BACKEND_PRIORITY 在模块初始化时选定的默认后端
+      - 'flash_attn': FlashAttention 3 或 2（按可用性），两者都不可用时回退到 'sdpa'
       - 其他: 强制使用对应后端
     注意：sageattn3/sageattn 不支持 q_lens/k_lens/window_size，遇到此类参数会自动回退到 flash 或 sdpa。
+    'sdpa' 分支与 flash_attention 语义一致：按 q_lens/k_lens 屏蔽 padding，causal / window 按序列右下角对齐，
+    支持 GQA 与 q_scale，输出 dtype 与输入相同。
     """
+    if backend == 'flash_attn':
+        if FLASH_ATTN_3_AVAILABLE:
+            backend = 'flash_attn_3'
+        elif FLASH_ATTN_2_AVAILABLE:
+            backend = 'flash_attn_2'
+        else:
+            backend = 'sdpa'
     if backend == 'auto':
         backend = _resolve_auto_backend(
             q=q,
@@ -464,18 +541,28 @@ def attention(
             v=v,
         )
     else:
-        if q_lens is not None or k_lens is not None:
-            warnings.warn(
-                'Padding mask is disabled when using scaled_dot_product_attention. It can have a significant impact on performance.'
-            )
-        attn_mask = None
+        # scaled_dot_product_attention with the same inputs and padding semantics as
+        # flash_attention: q_lens / k_lens, bottom-right aligned causal and window
+        # masks, GQA and q_scale. This is the path taken when no flash-attn build is
+        # importable (for example on AMD ROCm GPUs).
+        half_dtypes = (torch.float16, torch.bfloat16)
+        assert dtype in half_dtypes
+        out_dtype = q.dtype
 
-        q = q.transpose(1, 2).to(dtype)
-        k = k.transpose(1, 2).to(dtype)
-        v = v.transpose(1, 2).to(dtype)
+        def half(x):
+            return x if x.dtype in half_dtypes else x.to(dtype)
 
-        out = torch.nn.functional.scaled_dot_product_attention(
-            q, k, v, attn_mask=attn_mask, is_causal=causal, dropout_p=dropout_p, scale=softmax_scale)
-
-        out = out.transpose(1, 2).contiguous()
-        return out
+        v = half(v)
+        q = half(q).to(v.dtype)
+        k = half(k).to(v.dtype)
+        if q_scale is not None:
+            q = q * q_scale
+        out = _sdpa_varlen_attention(
+            q, k, v,
+            q_lens=q_lens,
+            k_lens=k_lens,
+            dropout_p=dropout_p,
+            softmax_scale=softmax_scale,
+            causal=causal,
+            window_size=window_size)
+        return out.type(out_dtype).contiguous()
