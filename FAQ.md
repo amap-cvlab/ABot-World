@@ -8,9 +8,10 @@ This document addresses common questions regarding hardware requirements, softwa
 
 ### Can ABot-World run on NVIDIA GeForce RTX 3090 / 4090?
 
-Peak GPU memory usage is approximately **19 GB**, with at least **64 GB** of system RAM recommended. Under these constraints, GPUs such as the RTX 3090 (24 GB) and RTX 4090 (24 GB) are in principle capable of running the released causal student model.
-
-We have verified inference on **RTX 4090**. RTX 3090 has not yet been evaluated on our side, though we expect it to be feasible given the memory footprint. Please ensure a CUDA environment consistent with the [Setup](README.md#-setup) instructions.
+GPU memory depends on the decoder, resolution and precision. The default
+v0.5 BF16 configuration does not inherit the v0 19 GB memory measurement.
+Native FP8 per-token requires compute capability 8.9 or newer. See
+[Setup](README.md#setup).
 
 ### Is multi-GPU inference supported?
 
@@ -22,7 +23,7 @@ Not at present. The current release targets **single-GPU** desktop inference. Mu
 
 ### Which CUDA versions are supported?
 
-We have tested **CUDA 12.8** and **CUDA 12.9** (`cu128` / `cu129`). Other CUDA versions have not undergone full verification. When in doubt, please align with the environment described in the [Setup](README.md#-setup) section.
+Use the CUDA environment described in the [Setup](README.md#setup) section.
 
 ### Is Windows supported? Which operating system is recommended?
 
@@ -40,6 +41,6 @@ We recommend **Google Chrome** for online Gradio usage, where we have observed t
 
 ## Related Resources
 
-- Installation and environment setup: [README.md](README.md#-setup)
+- Installation and environment setup: [README.md](README.md#setup)
 - FlashAttention glibc issues: [Dao-AILab/flash-attention#1708](https://github.com/Dao-AILab/flash-attention/issues/1708)
 - SageAttention source build: [thu-ml/SageAttention](https://github.com/thu-ml/SageAttention/tree/main)

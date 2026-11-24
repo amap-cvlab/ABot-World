@@ -216,3 +216,4 @@ website.sh
 # checkpoints
 .gradio_cache/
 checkpoints/
+/outputs/text_cache/*

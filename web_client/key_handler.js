@@ -68,7 +68,9 @@
 
     function setup(tb) {
         // 统一使用大写，与后端 pipeline.set_act() 接口保持一致
-        const KEYS = new Set(['W', 'A', 'S', 'D', 'I', 'J', 'K', 'L']);
+        const KEYS = new Set(['W', 'A', 'S', 'D', 'I', 'J', 'K', 'L', 'Ctrl', 'Shift', 'Space', 'Alt']);
+        const BODY_KEYS = {CONTROL: 'Ctrl', SHIFT: 'Shift', ' ': 'Space', ALT: 'Alt'};
+        const MOUSE_KEYS = {0: 'MouseLeft', 2: 'MouseRight'};
 
         // 方向键 → IJKL 映射
         const ARROW_MAP = {
@@ -193,11 +195,10 @@
             if (isGameKeysBlockedTarget(e.target)) return;
             // toUpperCase 消除 CapsLock / Shift 导致的大小写歧义；方向键映射到 IJKL
             const raw = e.key.toUpperCase();
-            const key = ARROW_MAP[raw] || raw;
+            const key = ARROW_MAP[raw] || BODY_KEYS[raw] || raw;
             const tracked = KEYS.has(key);
             console.log(`[KeyHandler] keydown key=${key} repeat=${e.repeat} tracked=${tracked}`);
-            // Command/Ctrl 组合键可能吞掉后续 keyup，避免 HUD 卡住
-            if (e.metaKey || e.ctrlKey) {
+            if (e.metaKey || (e.ctrlKey && e.altKey && raw === 'D')) {
                 if (tracked) {
                     pressedKeys.delete(key);
                     activatedKeys.delete(key);
@@ -218,7 +219,7 @@
         document.addEventListener('keyup', (e) => {
             if (isGameKeysBlockedTarget(e.target)) return;
             const raw = e.key.toUpperCase();
-            const key = ARROW_MAP[raw] || raw;
+            const key = ARROW_MAP[raw] || BODY_KEYS[raw] || raw;
             if (!KEYS.has(key)) return;
             console.log(`[KeyHandler] keyup key=${key}`);
             pressedKeys.delete(key);
@@ -227,24 +228,39 @@
             triggerSend();
         });
 
+        document.addEventListener('mousedown', (e) => {
+            const key = MOUSE_KEYS[e.button];
+            if (!key || !e.target.closest?.('.fe-video-fixed')) return;
+            if (pressedKeys.has(key)) return;
+            pressedKeys.add(key);
+            activatedKeys.add(key);
+            triggerSend();
+        });
+        document.addEventListener('mouseup', (e) => {
+            if (pressedKeys.delete(MOUSE_KEYS[e.button])) triggerSend();
+        });
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.closest?.('.fe-video-fixed')) e.preventDefault();
+        });
+
         // 浏览器失焦/切后台时，保证 HUD 与状态不残留
         window.addEventListener('blur', () => clearAllTrackedKeys('window_blur'));
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState !== 'visible') clearAllTrackedKeys('visibility_hidden');
         });
 
-        console.log('[KeyHandler] listeners attached, watching: W A S D I J K L');
+        console.log('[KeyHandler] movement, camera and action listeners attached');
     }
 
     setTimeout(tryInit, POLL);
 })();
 
-/** Debug 区：Ctrl+D 切换 body.fe-debug-visible（模型状态 + 当前 Prompt，见 theme .fe-debug-panel） */
+/** Debug 区：Ctrl+Alt+D 切换 body.fe-debug-visible */
 (function initDebugPanelToggle() {
     document.addEventListener(
         'keydown',
         (e) => {
-            if (!e.ctrlKey || e.altKey || e.metaKey) return;
+            if (!e.ctrlKey || !e.altKey || e.metaKey) return;
             const k = e.key;
             if (k !== 'd' && k !== 'D') return;
             e.preventDefault();

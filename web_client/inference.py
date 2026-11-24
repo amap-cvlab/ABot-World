@@ -23,8 +23,10 @@ from web_client.config import (
     MAX_BLOCKS, FRAMES_PER_BLOCK, FIRST_BLOCK_FRAMES,
 )
 from web_client.state import state
-from web_client.pipeline_loader import get_pipeline, decode_block_to_frames, _init_lock
+from web_client.example_scenes import EXAMPLE_SCENES, REFERENCE_IMAGES_DIR, ExampleSkill
+from abot_world.iris.interactive_loader import get_pipeline, decode_block_to_frames, _init_lock
 from web_client.ui_helpers import format_current_prompt_md, format_status_md, format_progress_bar_html
+from abot_world.iris.utils.action_conditions import ActionConditions
 
 _SENTINEL = None  # worker 结束信号
 MIN_SLEEP = 0.005  # 5ms: 小于该值的 sleep 不执行，以减少调度抖动
@@ -32,7 +34,7 @@ MIN_SLEEP = 0.005  # 5ms: 小于该值的 sleep 不执行，以减少调度抖�
 
 # ── Worker ───────────────────────────────────────────────────────────────────
 
-def _inference_worker(pipeline, noise, device, frame_queue, num_fpb):
+def _inference_worker(pipeline, noise, device, frame_queue, num_fpb, example_skill: ExampleSkill | None = None):
     """Runs in a background thread: generates blocks and pushes
     (frames, block_elapsed) tuples into frame_queue.
     每个 block 通过 set_act(..., height, width, num_frames, device) 更新动作条件后生成。
@@ -40,16 +42,21 @@ def _inference_worker(pipeline, noise, device, frame_queue, num_fpb):
     from web_client.config import MAX_BLOCKS
     from web_client.keyboard import _sample_key_snapshot  # 避免循环导入
     current_prompt = state.shared_prompt
+    current_local = ""
+    actions = ActionConditions()
 
     try:
         while state.is_running and state.block_count < MAX_BLOCKS:
             sp = state.shared_prompt
 
-            key_snapshot = _sample_key_snapshot()
+            key_snapshot, held, tapped = _sample_key_snapshot()
+            skill_caption = example_skill.caption(interrupt=bool(tapped)) if example_skill else ""
+            _, body_caption = actions.step(held, tapped)
+            local = skill_caption or body_caption
 
-            if sp != current_prompt:
-                current_prompt = sp
-                pipeline.set_prompts([current_prompt], device=device)
+            if sp != current_prompt or local != current_local:
+                pipeline.set_condition_text(sp, local, device=device)
+                current_prompt, current_local = sp, local
             block_start = time.monotonic()
 
             lat_block = None
@@ -64,6 +71,8 @@ def _inference_worker(pipeline, noise, device, frame_queue, num_fpb):
                 noise = torch.randn_like(noise)
 
             frames = decode_block_to_frames(pipeline, lat_block)
+            if skill_caption:
+                example_skill.advance()
             block_end = time.monotonic()
             block_elapsed = block_end - block_start
 
@@ -71,12 +80,20 @@ def _inference_worker(pipeline, noise, device, frame_queue, num_fpb):
             state.frame_count += len(frames)
             frame_queue.put((frames, block_elapsed, current_prompt, block_end))
 
+        if state.is_running and state.block_count >= MAX_BLOCKS:
+            started = time.monotonic()
+            frames = decode_block_to_frames(pipeline, None, final=True)
+            ended = time.monotonic()
+            if frames:
+                state.frame_count += len(frames)
+                frame_queue.put((frames, ended - started, current_prompt, ended))
+
     except Exception as e:
         state.worker_error = str(e)
     finally:
         # 判断完成状态：达到 MAX_BLOCKS 为正常完成，否则为被停止
         from web_client.config import MAX_BLOCKS
-        if state.block_count >= MAX_BLOCKS:
+        if state.block_count >= MAX_BLOCKS and state.worker_error is None:
             state.completion_status = "completed"
         else:
             state.completion_status = "stopped"
@@ -116,6 +133,9 @@ def start_stream(prompt: str, ref_image_path=None, vae_type: str | None = None, 
     """启动流式生成并逐帧 yield (frame, status, current_prompt_md, btn_update, overlay_visible)。"""
     prompt = prompt.strip()
     state.shared_prompt = prompt
+    example = EXAMPLE_SCENES.get(ref_image_path)
+    example_skill = ExampleSkill(example) if example else None
+    state.example_skill = example_skill
     state.is_running = True
     state.played_frame_count = 0
     state.reset_stats()
@@ -175,10 +195,14 @@ def start_stream(prompt: str, ref_image_path=None, vae_type: str | None = None, 
 
     pipeline.torch_dtype = torch.bfloat16
     print(">>> set_prompts start", flush=True)
-    pipeline.set_prompts([prompt], device=device)
+    pipeline.conditional_dict = None
+    pipeline.set_condition_text(prompt, device=device)
     print(">>> set_prompts done", flush=True)
-    ref_img_hash = hashlib.md5(Path(final_ref_image).read_bytes()).hexdigest()[:16]
-    ref_cache_dir = OUTPUT_DIR / "ref_image_cache" / ref_img_hash
+    if example:
+        ref_cache_dir = example.reference_dir
+    else:
+        ref_img_hash = hashlib.md5(Path(final_ref_image).read_bytes()).hexdigest()[:16]
+        ref_cache_dir = REFERENCE_IMAGES_DIR / ref_img_hash
     print(f"[REF][CACHE] Using ref cache dir: {final_ref_image} -> {ref_cache_dir}", flush=True)
     print(">>> set_ref start", flush=True)
     pipeline.set_ref_latent_mask_from_exists_paths(ref_dir=str(ref_cache_dir), device=device)
@@ -194,7 +218,7 @@ def start_stream(prompt: str, ref_image_path=None, vae_type: str | None = None, 
     frame_queue = queue.Queue(maxsize=FRAME_QUEUE_SIZE)
     worker = threading.Thread(
         target=_inference_worker,
-        args=(pipeline, noise, device, frame_queue, num_fpb),
+        args=(pipeline, noise, device, frame_queue, num_fpb, example_skill),
         daemon=True,
     )
     worker.start()
@@ -226,6 +250,8 @@ def start_stream(prompt: str, ref_image_path=None, vae_type: str | None = None, 
             # 首个 block 到达后，根据 decode 后的实际帧数计算总预期帧数
             if total_frames == 0:
                 total_frames = FIRST_BLOCK_FRAMES + (MAX_BLOCKS - 1) * FRAMES_PER_BLOCK
+                if pipeline.independent_first_frame and latent_channels == 48:
+                    total_frames += 4  # Separate clean latent prefix adds four decoded frames.
             status_data = state.get_status_data(current_prompt)
             status_md = format_status_md(status_data)
             prompt_md = format_current_prompt_md(current_prompt)
@@ -410,6 +436,9 @@ def on_click_update_prompt(prompt: str):
     if not state.model_ready:
         yield gr.skip(), "**模型加载中…** 请稍候再试。", pm, _btn_update(), gr.skip(), gr.skip()
         return
+    if state.is_stopping:
+        yield gr.skip(), "**正在停止…**", pm, _btn_update(), gr.skip(), gr.skip()
+        return
     ref_path = state.ref_image_path
     if state.is_running:
         status_md, prompt_md, btn_state = update_state(prompt, ref_path)
@@ -421,7 +450,19 @@ def on_click_update_prompt(prompt: str):
         yield from start_stream(prompt, ref_path)
     except Exception as e:
         state.is_running = False
+        state.is_stopping = False
         yield gr.skip(), f"**错误**：{e}", format_current_prompt_md(state.shared_prompt), _btn_update(), gr.update(visible=False), ""
+
+
+def on_example_skill(slot: int, image_hash: str | None):
+    skill = state.example_skill
+    if (not state.is_running or not state.played_frame_count or skill is None
+            or skill.scene.image_hash != image_hash
+            or state.ref_image_path != str(skill.scene.first_frame)):
+        gr.Info("启动示例场景，等画面出现后再释放技能。")
+        return
+    if not skill.request(slot):
+        gr.Info("技能正在释放，结束后可以再试。")
 
 
 def on_stop():

@@ -9,8 +9,8 @@ ABot-World - 实时可交互世界模型 Gradio UI
 import sys
 import os
 import time
-import json
 import threading
+from functools import partial
 from pathlib import Path
 
 _project_root = Path(__file__).resolve().parent.parent
@@ -23,22 +23,23 @@ _gradio_tmp.mkdir(parents=True, exist_ok=True)
 os.environ["GRADIO_TEMP_DIR"] = str(_gradio_tmp)
 
 # ── B. 导入 ─────────────────────────────────────────────────────────────────
-from omegaconf import OmegaConf
 import gradio as gr
 
 from web_client.config import (
-    PROJECT_ROOT, WEB_DIR, DEBUG_FRONTEND_ONLY,
-    STREAM_HEIGHT, DEFAULT_REF_IMAGE, PRESETS_FALLBACK_PROMPT,
-    SCENE_PRESETS_PATH,
+    WEB_DIR, DEBUG_FRONTEND_ONLY, STREAM_HEIGHT,
     SERVER_NAME, SERVER_PORT, SHUTDOWN_GRACE_SECONDS,
     VAE_TYPE,
     USE_FP8_GEMM,
 )
 from web_client.state import state
+from web_client.example_scenes import DEFAULT_EXAMPLE, EXAMPLE_SCENES, SKILLS_PER_EXAMPLE
 from web_client.keyboard import on_key_update
-from web_client.inference import on_click_update_prompt, on_stop, check_model_ready_ui, show_completion_toast
+from web_client.inference import (
+    on_click_update_prompt, on_stop, check_model_ready_ui, show_completion_toast,
+    on_example_skill,
+)
 from web_client.ui_helpers import format_current_prompt_md
-from web_client.pipeline_loader import get_pipeline, _init_lock
+from abot_world.iris.interactive_loader import get_pipeline, _init_lock
 
 # ── C. 前端资源加载 ─────────────────────────────────────────────────────────
 _KEY_HUD_WASD_HTML = (WEB_DIR / "key_hud_wasd.html").read_text(encoding="utf-8")
@@ -52,133 +53,11 @@ _HUD_CSS = (WEB_DIR / "key_hud.css").read_text(encoding="utf-8")
 _PROMPT_BTNS_CSS = (WEB_DIR / "prompt_buttons.css").read_text(encoding="utf-8")
 _COMBINED_CSS = _THEME_CSS + "\n" + _HUD_CSS + "\n" + _PROMPT_BTNS_CSS
 
-# ── E. scene_presets.yaml（唯一数据源：图 + Prompt + default_prompt）──────────
-REF_IMAGE_ENTRIES: list[tuple[str, str]] = []  # [(path, caption), ...]
-REF_IMAGE_PATHS: list[str] = []
-
-
-def _read_caption_prompt(caption_path: Path) -> str:
-    """从 caption JSON 文件中读取 scene_static 字段作为 prompt 文本。"""
-    try:
-        with open(caption_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        text = data.get("scene_static", "")
-        if isinstance(text, str) and text.strip():
-            return text.strip()
-    except Exception:
-        pass
-    return ""
-
-
-def _resolve_prompt(raw: str, base_dir: Path) -> str:
-    """解析 prompt 值：若以 .json 结尾则视为 caption 文件路径并读取 scene_static，否则直接作为文本。"""
-    if not raw:
-        return ""
-    if raw.endswith(".json"):
-        p = Path(raw)
-        caption_path = p if p.is_absolute() else base_dir / raw
-        return _read_caption_prompt(caption_path)
-    return raw
-
-
-_CAPTION_PREFIX = "| unknown |"
-
-
-def _apply_caption_prefix(prompt: str) -> str:
-    """为所有 caption 统一添加 '| unknown |' 前缀。"""
-    if not prompt:
-        return _CAPTION_PREFIX
-    return f"{_CAPTION_PREFIX} {prompt}"
-
-
-def _load_scene_presets() -> tuple[list[tuple[str, str]], list[str], list[str], int, str]:
-    """加载 web_client/scene_presets.yaml。
-
-    image 为相对于 web_client/ 的路径。
-    prompt 支持两种形式：.json 文件路径（读取 scene_static 字段）或直接字符串。
-    返回 (entries, paths, prompts, default_index, default_prompt 字符串)。
-    """
-    entries: list[tuple[str, str]] = []
-    prompts: list[str] = []
-    seen: set[str] = set()
-
-    def add_file(p: Path, caption: str, prompt_text: str) -> None:
-        if not p.is_file():
-            return
-        key = str(p.resolve())
-        if key in seen:
-            return
-        seen.add(key)
-        entries.append((key, caption))
-        prompts.append(prompt_text)
-
-    if not SCENE_PRESETS_PATH.is_file():
-        return [], [], [], 0, _apply_caption_prefix(PRESETS_FALLBACK_PROMPT)
-
-    try:
-        cfg = OmegaConf.load(str(SCENE_PRESETS_PATH))
-    except Exception:
-        return [], [], [], 0, _apply_caption_prefix(PRESETS_FALLBACK_PROMPT)
-
-    def _resolve(rel: str) -> Path:
-        """将相对路径解析为绝对路径（相对于 WEB_DIR）。"""
-        p = Path(rel)
-        return p if p.is_absolute() else WEB_DIR / rel
-
-    # default_prompt：支持 JSON 文件路径或直接字符串
-    dp_raw = str(cfg.get("default_prompt") or "").strip()
-    if dp_raw:
-        default_prompt = _resolve_prompt(dp_raw, WEB_DIR) or PRESETS_FALLBACK_PROMPT
-    else:
-        default_prompt = PRESETS_FALLBACK_PROMPT
-    default_index = int(cfg.get("default_index") or 0)
-
-    for g in cfg.get("groups") or []:
-        gname = (g.get("name") or "").strip() or "预设"
-        for item in (g.get("items") or []):
-            # image: 相对路径 -> {WEB_DIR}/{image}
-            img_rel = (item.get("image") or "").strip()
-            if not img_rel:
-                continue
-            p = _resolve(img_rel)
-
-            label = (item.get("label") or "").strip()
-            caption = label if label else f"{gname} · {p.stem}"
-
-            # prompt: 支持 JSON 文件路径（读取 scene_static）或直接字符串
-            # 显式 prompt: "" → 空字符串；省略 prompt 键 → 继承 default_prompt
-            if "prompt" in item:
-                pr_raw = str(item.get("prompt") or "").strip()
-                if pr_raw:
-                    row_prompt = _resolve_prompt(pr_raw, WEB_DIR) or default_prompt
-                else:
-                    row_prompt = ""
-            else:
-                row_prompt = default_prompt
-            add_file(p, caption, _apply_caption_prefix(row_prompt))
-
-    if not entries:
-        return [], [], [], 0, _apply_caption_prefix(default_prompt)
-
-    if default_index < 0 or default_index >= len(entries):
-        default_index = 0
-    paths = [x for x, _ in entries]
-    return entries, paths, prompts, default_index, _apply_caption_prefix(default_prompt)
-
-
-PRESET_PROMPTS: list[str] = []
-REF_IMAGE_ENTRIES, REF_IMAGE_PATHS, PRESET_PROMPTS, _preset_default_idx, _file_default_prompt = _load_scene_presets()
-if REF_IMAGE_PATHS:
-    INITIAL_PROMPT = PRESET_PROMPTS[_preset_default_idx]
-    state.ref_image_path = REF_IMAGE_PATHS[_preset_default_idx]
-else:
-    INITIAL_PROMPT = _file_default_prompt
-    state.ref_image_path = None
-
-
-def on_ref_image_update(filepath: str | None):
-    """参考图选中回调：将路径写入 StreamState，下一个 block 生效。"""
-    state.ref_image_path = filepath if filepath else None
+# ── E. 示例画廊 ───────────────────────────────────────────────────────────
+GALLERY_EXAMPLES = tuple(EXAMPLE_SCENES.values())
+REF_IMAGE_ENTRIES = [(str(example.first_frame), example.label) for example in GALLERY_EXAMPLES]
+INITIAL_PROMPT = DEFAULT_EXAMPLE.scene_prompt
+state.ref_image_path = str(DEFAULT_EXAMPLE.first_frame)
 
 
 def on_ref_gallery_select(evt: gr.SelectData):
@@ -187,20 +66,21 @@ def on_ref_gallery_select(evt: gr.SelectData):
     2) 若正在流式生成：请求停止，让已入队帧先播放完，start_stream 最后会替换为选中图。
     3) 若未在生成：立刻用选中图替换 gr.Image。
     """
-    if not REF_IMAGE_PATHS or evt.index < 0 or evt.index >= len(REF_IMAGE_PATHS):
-        return gr.update(), gr.skip()
+    if not isinstance(evt.index, int) or not 0 <= evt.index < len(GALLERY_EXAMPLES):
+        return gr.skip(), gr.skip(), gr.skip(), *(gr.skip() for _ in range(SKILLS_PER_EXAMPLE))
 
-    path = REF_IMAGE_PATHS[evt.index]
-    on_ref_image_update(path)
-
-    prompt_val = PRESET_PROMPTS[evt.index] if evt.index < len(PRESET_PROMPTS) else gr.update()
+    example = GALLERY_EXAMPLES[evt.index]
+    path = str(example.first_frame)
+    state.ref_image_path = path
+    skill_buttons = [gr.update(value=skill.name) for skill in example.skills]
 
     if state.is_running:
+        state.is_stopping = True
         state.is_running = False
         state.waiting_for_new_frames = False
-        return prompt_val, gr.skip()
+        return example.scene_prompt, gr.skip(), example.image_hash, *skill_buttons
 
-    return prompt_val, gr.update(value=path)
+    return example.scene_prompt, gr.update(value=path), example.image_hash, *skill_buttons
 
 
 def on_video_gallery_select(evt: gr.SelectData):
@@ -255,7 +135,7 @@ with gr.Blocks(title="ABot-World - 实时可交互世界模型") as demo:
         # 初始无图：去掉所有填充图标
         image_output = gr.Image(
             label=None,
-            value=state.ref_image_path or DEFAULT_REF_IMAGE,
+            value=state.ref_image_path,
             visible=True,
             height=STREAM_HEIGHT,
             show_label=False,
@@ -268,6 +148,11 @@ with gr.Blocks(title="ABot-World - 实时可交互世界模型") as demo:
             value="",
             elem_classes=["fe-progress-container"],
             visible=True,
+        )
+
+        gr.Markdown(
+            "**基础动作** · `Ctrl` 蹲下、`Shift` 跑步、`Space` 跳跃、`Alt` 翻滚 · "
+            "画面内按住右键瞄准、点击左键普攻"
         )
 
         # ── 控制区：一行 左|中|右（模型状态与当前 Prompt 见页面底部 Debug 区，Ctrl+D 切换显示）──
@@ -286,17 +171,21 @@ with gr.Blocks(title="ABot-World - 实时可交互世界模型") as demo:
                     with gr.Row(elem_classes=["fe-prompt-btns"]):
                         update_btn = gr.Button("唤醒你的世界", variant="primary", interactive=DEBUG_FRONTEND_ONLY)
                         stop_btn = gr.Button("封存你的世界", variant="stop")
+                    example_selection = gr.State(DEFAULT_EXAMPLE.image_hash)
+                    with gr.Row():
+                        example_skill_buttons = [
+                            gr.Button(skill.name) for skill in DEFAULT_EXAMPLE.skills
+                        ]
 
                 with gr.Column(scale=9, min_width=132, elem_classes=["fe-hud-col", "fe-hud-cyber"]):
                     key_display_ijkl = gr.HTML(_KEY_HUD_IJKL_HTML)
 
-    # ── 7: 场景预设（探索平行宇宙 参考图 + Prompt），数据来自 scene_presets.yaml ───────────────
+    # ── 场景预设（探索平行宇宙）────────────────────────────────────────
     with gr.Row():
         with gr.Column(scale=1):
             gr.Markdown("**探索平行宇宙**", elem_classes=["fe-ref-title"])
-            _ref_n = len(REF_IMAGE_ENTRIES)
             ref_gallery = gr.Gallery(
-                value=REF_IMAGE_ENTRIES if REF_IMAGE_ENTRIES else None,
+                value=REF_IMAGE_ENTRIES,
                 label=None,
                 columns=None,  # 自适应单行横向排列
                 rows=1,
@@ -304,7 +193,7 @@ with gr.Blocks(title="ABot-World - 实时可交互世界模型") as demo:
                 object_fit="cover",
                 show_label=False,
                 allow_preview=False,
-                interactive=True,
+                interactive=False,
                 elem_classes=["fe-ref-gallery-hscroll"],
             )
 
@@ -343,8 +232,11 @@ with gr.Blocks(title="ABot-World - 实时可交互世界模型") as demo:
     ref_gallery.select(
         fn=on_ref_gallery_select,
         inputs=None,
-        outputs=[prompt_input, image_output],
+        outputs=[prompt_input, image_output, example_selection, *example_skill_buttons],
     )
+
+    for slot, button in enumerate(example_skill_buttons):
+        button.click(fn=partial(on_example_skill, slot), inputs=[example_selection], queue=False)
 
     stop_btn.click(
         fn=on_stop,

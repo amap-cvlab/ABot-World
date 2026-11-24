@@ -1,0 +1,5 @@
+# Merged over default_config.yaml and long_forcing_dmd.yaml.
+# Copy this file and override model/text/VAE paths for your installation.
+vae_type: fantasydecoder
+fantasydecoder_checkpoint: checkpoints/ABot-World-0-5-5B-Iris/FantasyDecoder/model.pt
+seed: 42

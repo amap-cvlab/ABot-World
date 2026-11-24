@@ -1,7 +1,7 @@
 # ABot-World Docker
 
 Run ABot-World in a reproducible container instead of installing the
-environment manually. The image follows the [Setup](../README.md#%EF%B8%8F-setup)
+environment manually. The image follows the [Setup](../README.md#setup)
 section of the main README:
 
 - Ubuntu 22.04, CUDA 12.8, Python 3.12 (conda)
@@ -66,10 +66,10 @@ on the host (they are mounted into the container by `docker/run.sh`):
 
 ```bash
 # HuggingFace
-hf download acvlab/ABot-World-0-5B-LF --local-dir ./checkpoints/ABot-World-0-5B-LF
+hf download acvlab/ABot-World-0-5-5B-Iris --local-dir ./checkpoints/ABot-World-0-5-5B-Iris
 
 # or ModelScope
-modelscope download "amap_cvlab/ABot-World-0-5B-LF" --local_dir ./checkpoints/ABot-World-0-5B-LF
+modelscope download "amap_cvlab/ABot-World-0-5-5B-Iris" --local_dir ./checkpoints/ABot-World-0-5-5B-Iris
 ```
 
 If you prefer to download inside the container (both `huggingface_hub` and
@@ -77,7 +77,7 @@ If you prefer to download inside the container (both `huggingface_hub` and
 
 ```bash
 bash docker/run.sh bash
-hf download acvlab/ABot-World-0-5B-LF --local-dir ./checkpoints/ABot-World-0-5B-LF
+hf download acvlab/ABot-World-0-5-5B-Iris --local-dir ./checkpoints/ABot-World-0-5-5B-Iris
 ```
 
 ## 3. Run the Gradio demo
@@ -85,6 +85,10 @@ hf download acvlab/ABot-World-0-5B-LF --local-dir ./checkpoints/ABot-World-0-5B-
 ```bash
 bash docker/run.sh
 ```
+
+To use FantasyDecoder, enter the container with `bash docker/run.sh bash`,
+then run `ABOTWORLD_CONFIG=configs/iris/model_inference.yaml bash web_client/run.sh`.
+See the [model table](../README.md#models) for optional Iris-BiT weights.
 
 Then open `http://localhost:2233` in your browser (Chrome recommended).
 
