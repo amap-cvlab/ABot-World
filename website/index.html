@@ -1,199 +1,213 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#020307" />
-  <style>
-    html,
-    body {
-      background: #020307;
-    }
-  </style>
-  <title>ABot-World | Infinite Interactive World Rollout on Single Desktop GPU</title>
-  <meta name="description"
-    content="ABot-World turns a single NVIDIA RTX 5090 desktop GPU into a real-time interactive world simulator, enabling infinite action-conditioned world rollout at 720P, 16 FPS, 1.2s latency, and 19GB GPU memory." />
-  <link rel="stylesheet" href="./css/style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e8f5fc">
+  <meta name="description" content="ABot-World-0.5 scales physical interaction data and model capacity to learn how actions change a scene and shape what happens next.">
+  <title>ABot-World-0.5 | Reliable Physical Intelligence via Scaling</title>
+  <link rel="icon" type="image/png" href="./assets/world-05/abot-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/world-05.css">
+  <link rel="stylesheet" href="./css/hls-video.css">
+  <script defer src="./assets/vendor/hls.js-1.7.4/hls.min.js"></script>
+  <script defer src="./js/hls-video.js"></script>
+  <script defer src="./js/world-05.js"></script>
 </head>
-
 <body>
-  <div class="bg-orb orb-a"></div>
-  <div class="bg-orb orb-b"></div>
-  <div class="bg-grid"></div>
-
-  <header class="hero">
-    <p class="brand">ABot-World</p>
-    <h1>Infinite Interactive World Rollout on Single Desktop GPU</h1>
-    <p class="hero-sub">
-      ABot-World turns a single NVIDIA RTX 5090 desktop GPU into a real-time interactive world simulator, enabling
-      infinite action-conditioned world rollout at 720P, 16 FPS, 1.2s latency, and 19GB GPU memory.
-    </p>
-    <div class="release-actions" aria-label="Upcoming release links">
-      <a class="release-btn" href="https://arxiv.org/abs/2607.19191" aria-disabled="true" tabindex="-1">Tech Report</a>
-      <a class="release-btn" href="https://github.com/amap-cvlab/ABot-World" target="_blank" aria-disabled="true"
-        tabindex="-1">Code</a>
-      <a class="release-btn" href="https://huggingface.co/acvlab/ABot-World-0-5B-LF" target="_blank"
-        aria-disabled="true" tabindex="-1">Model (HuggingFace)</a>
-      <a class="release-btn" href="https://modelscope.cn/models/amap_cvlab/ABot-World-0-5B-LF" target="_blank"
-        aria-disabled="true" tabindex="-1">Model (ModelScope)</a>
-      <a class="release-btn" href="https://abot-world.amap.com" target="_blank" aria-disabled="true"
-        tabindex="-1">Studio</a>
-    </div>
-
-    <div class="intro-video-wrap">
-      <video id="introVideo" controls autoplay loop playsinline preload="metadata">
-        <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-0-720P.mp4"
-          type="video/mp4" />
-        Your browser does not support video playback.
-      </video>
-    </div>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="wordmark" href="./" aria-label="ABot-World home"><img src="./assets/world-05/abot-logo-color.png" alt=""><span>World</span></a>
+    <nav aria-label="Main navigation">
+      <a href="#models">Models</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#research">Research</a>
+      <span class="nav-report">Report <small>(Coming Soon)</small></span>
+      <a href="https://abot-world.amap.com">Studio</a>
+      <a class="nav-github" href="https://github.com/amap-cvlab/ABot-World">GitHub <span aria-hidden="true">↗</span></a>
+    </nav>
   </header>
 
-  <section class="highlights">
-    <article class="highlight-card">
-      <h3>Action-Driven World Control</h3>
-      <p>Responds to user actions in real time, enabling continuous exploration instead of passive video playback.</p>
-    </article>
-    <article class="highlight-card">
-      <h3>Real-Time Desktop Inference</h3>
-      <p>Runs at 720p and up to 16 FPS on a single NVIDIA RTX 5090 desktop GPU, with 1.2s latency and 19GB GPU memory.</p>
-    </article>
-    <article class="highlight-card">
-      <h3>Infinite World Rollout</h3>
-      <p>Supports open-ended interactive world generation beyond fixed video-length limits.</p>
-    </article>
-    <article class="highlight-card">
-      <h3>Open-Ended World Imagination</h3>
-      <p>Expands the world with new scenes and dynamics during rollout, avoiding scene lock-in, without prompt
-        switching.</p>
-    </article>
-  </section>
-
-  <section class="worlds-section">
-    <div class="section-head">
-      <h2>Explore Our Created Worlds</h2>
-      <p>A continuous world lane. Click any bubble to expand and play. <a href="https://abot-world.amap.com"
-          target="_blank">Try it on our Studio</a></p>
-    </div>
-
-    <div class="worlds-rail">
-      <div class="worlds-fade worlds-fade-left" aria-hidden="true"></div>
-      <div class="worlds-fade worlds-fade-right" aria-hidden="true"></div>
-      <button class="world-nav world-nav-prev" type="button" aria-label="Previous worlds">
-        &lt;
-      </button>
-      <div class="worlds-grid" id="worldsGrid">
-        <article class="world-card" data-world="0">
-          <button class="world-bubble" type="button" aria-label="Play Case 0 world">
-            <img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-0.png"
-              alt="ABot-World case 0 preview"
-              onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-0.png';" />
-            <video playsinline preload="metadata" controls>
-              <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-0.mp4"
-                type="video/mp4" />
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner section-shell">
+        <div class="hero-copy">
+          <h1 id="hero-title">Reliable Physical Intelligence <span class="no-wrap">via Scaling</span></h1>
+          <div class="hero-intro">
+            <p class="hero-description">ABot-World-0.5 scales physical interaction data and model capacity to learn how actions change a scene and how those changes shape what happens next.</p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#capabilities">How it works</a>
+              <a class="button button-outline" href="#models">Meet Iris and Halo</a>
+            </div>
+          </div>
+        </div>
+        <figure class="hero-visual">
+          <figcaption>
+            <span>ABot-World-0.5 launch film</span>
+            <span id="hero-footage-status" role="status" hidden>Video unavailable. Reload to retry.</span>
+          </figcaption>
+          <div class="hero-image-wrap hls-frame">
+            <video id="hero-footage" controls loop playsinline preload="none" poster="./assets/world-05/ABot-World-0.5-poster.png" aria-label="ABot-World-0.5 launch film" data-hls-status="hero-footage-status">
+              <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/abot-world-0-5/launch/cn/master.m3u8" type="application/vnd.apple.mpegurl">
             </video>
+            <button class="hls-start" type="button" hidden>Play launch film</button>
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <section id="introduction" class="intro section-shell">
+      <div class="intro-title">
+        <h2>CoC<br><span>The Chain of Causation</span></h2>
+        <p>In a Chain of Causation, the physical outcome of one action sets the initial conditions for the next. Consider a robot grasping an apple. As the arm rises, the apple rises with it. The gripper carries the apple over a bowl. When it opens, the apple falls inside.</p>
+      </div>
+      <div class="intro-content">
+        <p>Training a model to sustain these chains begins with the data. We built PhysTracer to identify and annotate clips that preserve the links between actions and their physical outcomes. Each clip pairs a global scene description with timestamped captions that trace individual actions to their observable effects. During training, Event-Aligned Conditioning (EventAlign) binds each caption to its interval in the video latents. For Halo, the audio latents follow the same timeline. The teacher can attend across events to learn how one outcome sets up the next.</p>
+        <p>Physics-guided recursive self-improvement (RSI) targets the links the model repeatedly misses. If a character wades through water and the surface stays still, the agent looks for clips that show both the foot entering the water and the ripples that follow. We mix those clips into the training data. After retraining, the agent checks which responses improved and which regressed, then uses those results to guide the next round.</p>
+      </div>
+    </section>
+
+    <section id="capabilities" class="capabilities">
+      <div class="section-shell">
+        <div class="capabilities-layout">
+        <div class="section-heading capability-heading">
+          <div><h2>How the world responds</h2></div>
+          <p>To steer a generated world, users need to see the result of each action in time to decide what to do next.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature feature-physical">
+            <div class="feature-text">
+              <h3>Physical interaction</h3>
+              <p>On our held-out benchmark of 319 video cases, scaling the training set from 150K to 1.2M examples raised the Physical Score from <strong>32.43 to 68.07</strong> for ABot-World 0.5 Iris and from <strong>41.50 to 84.32</strong> for ABot-World 0.5 Halo. The score measures physical and causal consistency.</p>
+            </div>
+            <figure class="feature-media">
+              <div class="hls-frame">
+                <video controls playsinline preload="none" poster="./assets/world-05/embodied-poster.jpg" aria-label="Model-generated physical interaction by ABot-World 0.5" data-hls-status="embodied-footage-status">
+                  <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/abot-world-0-5/embodied/master.m3u8" type="application/vnd.apple.mpegurl">
+                </video>
+                <button class="hls-start" type="button" hidden>Play demonstration</button>
+              </div>
+              <figcaption>
+                ABot-World 0.5 · Model-generated physical interaction
+                <span id="embodied-footage-status" role="status" hidden>Video unavailable. Reload to retry.</span>
+              </figcaption>
+            </figure>
+          </article>
+          <article class="feature feature-control">
+            <div class="feature-text">
+              <h3>Action and Prompt Control</h3>
+              <p>Keyboard controls let users move, turn, crouch, and sprint throughout a rollout. Language prompts can introduce events while the user keeps steering. During training, EventAlign lets each video latent attend directly to the local prompt for its own time interval. In this demo, “Incendio!” cues a burst of fire ahead of the rider, who continues past the scorched ground as the flames subside.</p>
+            </div>
+            <figure class="feature-media">
+              <div class="hls-frame">
+                <video controls playsinline preload="none" poster="./assets/world-05/incendio-poster.jpg" aria-label="ABot-World-0.5 Incendio demonstration" data-hls-status="incendio-footage-status">
+                  <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/abot-world-0-5/incendio/master.m3u8" type="application/vnd.apple.mpegurl">
+                </video>
+                <button class="hls-start" type="button" hidden>Play Incendio</button>
+              </div>
+              <figcaption>
+                ABot-World-0.5 · Action and Prompt Control demonstration
+                <span id="incendio-footage-status" role="status" hidden>Video unavailable. Reload to retry.</span>
+              </figcaption>
+            </figure>
+          </article>
+          <article class="feature feature-decoder">
+            <div class="feature-text">
+              <h3>Streaming audiovisual generation</h3>
+              <p>Halo generates video and audio together in a single 30B diffusion transformer. Each chunk pairs three video latent frames with audio latents covering the same interval. On four NVIDIA B200 GPUs, Halo streams 720p video at 24 FPS with synchronized audio.</p>
+            </div>
+            <div>
+              <p>FantasyDecoder reconstructs video frames and audio waveform samples as each chunk arrives. It reuses features from the previous chunk and refines the video on a compact grid before upsampling to full resolution.</p>
+              <p>On 22-frame, 480p clips, FantasyDecoder delivers 8.26× the video decoding throughput of the Wan2.2 causal decoder on an NVIDIA RTX A6000. It also improves PSNR by 0.79 dB and reduces temporal flicker by 13.9%.</p>
+            </div>
+          </article>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="models" class="models section-shell">
+      <div class="section-heading">
+        <div><h2>Two model variants</h2></div>
+        <p>Iris and Halo share an action-conditioned design, with different model capacities and media outputs.</p>
+      </div>
+      <div class="model-switcher" aria-label="Model variants">
+        <article class="model-panel is-open" data-model>
+          <button type="button" class="model-toggle" aria-expanded="true" aria-controls="model-iris">
+            <span class="model-name">Iris</span><span class="model-index">5B · Video</span><span class="model-symbol" aria-hidden="true">−</span>
           </button>
+          <div id="model-iris" class="model-content">
+            <p class="model-lede">Action-conditioned video</p>
+            <p>Iris builds on Wan2.2-5B TI2V. The technical report evaluates streaming video at 1280 × 704 on one NVIDIA RTX 5090.</p>
+          </div>
         </article>
-
-        <article class="world-card" data-world="1">
-          <button class="world-bubble" type="button" aria-label="Play Case 1 world">
-            <img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-1.png"
-              alt="ABot-World case 1 preview"
-              onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-1.png';" />
-            <video playsinline preload="metadata" controls>
-              <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-1.mp4"
-                type="video/mp4" />
-            </video>
+        <article class="model-panel is-open" data-model>
+          <button type="button" class="model-toggle" aria-expanded="true" aria-controls="model-halo">
+            <span class="model-name">Halo</span><span class="model-index">30B · Video and audio</span><span class="model-symbol" aria-hidden="true">−</span>
           </button>
-        </article>
-
-        <article class="world-card" data-world="2">
-          <button class="world-bubble" type="button" aria-label="Play Case 2 world">
-            <img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-2.png"
-              alt="ABot-World case 2 preview"
-              onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-2.png';" />
-            <video playsinline preload="metadata" controls>
-              <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-2.mp4"
-                type="video/mp4" />
-            </video>
-          </button>
-        </article>
-
-        <article class="world-card" data-world="3">
-          <button class="world-bubble" type="button" aria-label="Play Case 3 world">
-            <img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-3.png"
-              alt="ABot-World case 3 preview"
-              onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-3.png';" />
-            <video playsinline preload="metadata" controls>
-              <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-3.mp4"
-                type="video/mp4" />
-            </video>
-          </button>
-        </article>
-
-        <article class="world-card" data-world="4">
-          <button class="world-bubble" type="button" aria-label="Play Case 4 world">
-            <img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-4.png"
-              alt="ABot-World case 4 preview"
-              onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-4.png';" />
-            <video playsinline preload="metadata" controls>
-              <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-4.mp4"
-                type="video/mp4" />
-            </video>
-          </button>
-        </article>
-
-        <article class="world-card" data-world="5">
-          <button class="world-bubble" type="button" aria-label="Play Case 5 world">
-            <img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-5.png"
-              alt="ABot-World case 5 preview"
-              onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-5.png';" />
-            <video playsinline preload="metadata" controls>
-              <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-5.mp4"
-                type="video/mp4" />
-            </video>
-          </button>
-        </article>
-
-        <article class="world-card" data-world="6">
-          <button class="world-bubble" type="button" aria-label="Play Case 6 world">
-            <img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-6.png"
-              alt="ABot-World case 6 preview"
-              onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-6.png';" />
-            <video playsinline preload="metadata" controls>
-              <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-6.mp4"
-                type="video/mp4" />
-            </video>
-          </button>
-        </article>
-
-        <article class="world-card" data-world="7">
-          <button class="world-bubble" type="button" aria-label="Play Case 7 world">
-            <img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-7.png"
-              alt="ABot-World case 7 preview"
-              onerror="this.onerror=null;this.src='./assets/imgs/ABot-World-Case-7.png';" />
-            <video playsinline preload="metadata" controls>
-              <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-7.mp4"
-                type="video/mp4" />
-            </video>
-          </button>
+          <div id="model-halo" class="model-content">
+            <p class="model-lede">Action-conditioned video and audio</p>
+            <p>Halo uses a single larger diffusion transformer to generate video and audio together on a shared timeline.</p>
+          </div>
         </article>
       </div>
-      <div class="world-player-view" id="worldPlayerView" hidden>
-        <video id="worldPlayerVideo" playsinline preload="metadata" controls></video>
-      </div>
-      <button class="world-nav world-nav-next" type="button" aria-label="Next worlds">
-        &gt;
-      </button>
-    </div>
-  </section>
+    </section>
 
-  <footer class="site-footer">
-    <p>Copyright © 2026 Alibaba AMAP CV Lab. All rights reserved.</p>
+    <section id="research" class="research">
+      <div class="section-shell">
+        <div class="research-heading">
+          <h2>Related research</h2>
+          <p>Explore work from our research community on long-horizon generation, action, geometry, and 3D scene representations.</p>
+        </div>
+        <div class="research-grid">
+          <article class="research-work">
+            <a class="research-image" href="https://fantasy-amap.github.io/LongForcing/" aria-label="Explore the LongForcing project"><img src="./assets/research/longforcing-scifi.jpg" alt="A scene from the LongForcing project" loading="lazy"></a>
+            <div class="research-copy"><h3>LongForcing</h3><p>Extends teacher supervision to reduce drift in long autoregressive rollouts. Halo applies this distillation method to synchronized video and audio.</p><a href="https://fantasy-amap.github.io/LongForcing/">Explore LongForcing <span aria-hidden="true">↗</span></a><a href="https://amap-cvlab.github.io/abot-world-0-24h/">ABot-World-0 24-hour experiment <span aria-hidden="true">↗</span></a></div>
+          </article>
+          <article class="research-work">
+            <a class="research-image" href="https://fantasy-amap.github.io/OneLA/" aria-label="Explore the OneLA project"><img src="./assets/research/onela-robotics.jpg" alt="A robotics scene from the OneLA project" loading="lazy"></a>
+            <div class="research-copy"><h3>OneLA</h3><p>Learns a shared latent action space from videos without action labels for world model control across domains.</p><a href="https://fantasy-amap.github.io/OneLA/">Explore OneLA <span aria-hidden="true">↗</span></a></div>
+          </article>
+          <article class="research-work">
+            <a class="research-image research-image-contain" href="https://fantasy-amap.github.io/GAD/" aria-label="Explore the GAD project"><img src="./assets/research/gad-static.jpg" alt="GAD project comparison of cross-view attention" loading="lazy"></a>
+            <div class="research-copy"><h3>GAD</h3><p>Distills cross-frame correspondences from a geometry model into video attention to better preserve scene geometry and moving object structure.</p><a href="https://fantasy-amap.github.io/GAD/">Explore GAD <span aria-hidden="true">↗</span></a></div>
+          </article>
+          <article class="research-work">
+            <a class="research-image" href="https://fantasy-amap.github.io/TriFold/" aria-label="Explore the TriFold project"><img src="./assets/research/trifold-reconstruction.jpg" alt="A reconstructed 3D scene from the TriFold project" loading="lazy"></a>
+            <div class="research-copy"><h3>TriFold</h3><p>Encodes irregular 3D Gaussian scenes into multi-slot triplane latents and adaptively reconstructs geometry and appearance with high fidelity. The same latent space supports image- and point-cloud-conditioned scene generation.</p><a href="https://fantasy-amap.github.io/TriFold/">Explore TriFold <span aria-hidden="true">↗</span></a></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="world-zero" class="archive section-shell">
+      <div class="archive-copy">
+        <h2>The world keeps<br>going.</h2>
+        <p>ABot-World began with ABot-World-0, bringing continuous, action-conditioned rollout to a single desktop GPU. Explore the original project, demonstrations, model and setup instructions.</p>
+        <div class="archive-links"><a class="text-link" href="./abot-world-0.html">Visit the ABot-World-0 page <span aria-hidden="true">↗</span></a><a class="text-link" href="https://arxiv.org/abs/2607.19191">Read the ABot-World-0 technical report <span aria-hidden="true">↗</span></a></div>
+      </div>
+      <div class="archive-media">
+        <div class="hls-frame">
+          <video controls playsinline preload="none" poster="./assets/gifs/ABot-World-0.gif" aria-label="ABot-World-0 demonstration" data-hls-status="archive-footage-status">
+            <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/abot-world-0/launch/master.m3u8" type="application/vnd.apple.mpegurl">
+            <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-0-720P.mp4" type='video/mp4; codecs="hvc1.1.6.L120.B0, mp4a.40.2"' data-file-fallback>
+          </video>
+          <button class="hls-start" type="button" hidden>Play demonstration</button>
+        </div>
+        <div class="media-caption"><span>ABot-World-0</span><span>Infinite Interactive World Rollout on a Single Desktop GPU</span></div>
+        <p id="archive-footage-status" role="status" hidden>Video unavailable. <a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-0-720P.mp4">Open the original demonstration</a>.</p>
+        <noscript><p><a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-0-720P.mp4">Open the original demonstration</a></p></noscript>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>Let's explore<br>what comes next.</p>
+      <a class="button button-primary" href="https://github.com/amap-cvlab/ABot-World">Visit the repository <span aria-hidden="true">↗</span></a>
+      <div class="footer-bottom"><a class="footer-logo" href="./" aria-label="ABot-World home"><img src="./assets/world-05/abot-logo-dark.png" alt=""><span>World</span></a><span>© 2026 Alibaba AMAP CV Lab</span><div><a href="https://abot-world.amap.com">Studio</a><a href="https://arxiv.org/abs/2607.19191">ABot-World-0 paper</a><a href="./abot-world-0.html">ABot-World-0</a></div></div>
+    </div>
   </footer>
-
-  <script src="./js/main.js"></script>
 </body>
-
 </html>

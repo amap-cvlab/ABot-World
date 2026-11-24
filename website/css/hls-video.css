@@ -1,0 +1,75 @@
+.hls-frame {
+  position: relative;
+}
+
+.hls-start {
+  position: absolute;
+  bottom: clamp(12px, 2vw, 32px);
+  left: clamp(12px, 2vw, 32px);
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 24px);
+  min-height: 46px;
+  padding: 8px 16px;
+  border: 1px solid rgb(255 255 255 / .32);
+  border-radius: 999px;
+  background: rgb(11 23 33 / .82);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font: inherit;
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: opacity .18s ease, background-color .18s ease;
+}
+
+.hls-start:not([hidden]) {
+  display: inline-flex;
+}
+
+.hls-start::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 12px;
+  background: currentColor;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.hls-start:hover {
+  background: rgb(11 23 33 / .94);
+}
+
+.hls-start:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgb(11 23 33 / .82);
+}
+
+@media (max-width: 280px) {
+  .hls-start {
+    gap: 6px;
+    padding-inline: 10px;
+    font-size: .75rem;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hls-start {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hls-frame:hover .hls-start,
+  .hls-start:is(:focus-visible, :disabled) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hls-start {
+    transition: none;
+  }
+}
