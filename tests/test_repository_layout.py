@@ -2,10 +2,12 @@ import ast
 from html.parser import HTMLParser
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import unittest
 from unittest.mock import patch
+from urllib.parse import urlsplit
 
 from abot_world.common.examples import EXAMPLE_SCENES
 from abot_world.iris.config import load_interactive_config, load_iris_config
@@ -20,10 +22,9 @@ class StaticAssets(HTMLParser):
         self.paths = []
 
     def handle_starttag(self, tag, attrs):
-        attrs = dict(attrs)
-        path = attrs.get("src") if tag == "script" else attrs.get("href") if tag == "link" else None
-        if path and path.startswith("./"):
-            self.paths.append(path)
+        for key, value in attrs:
+            if key in {"src", "href", "poster"} and value:
+                self.paths.append(value)
 
 
 class LayoutTest(unittest.TestCase):
@@ -82,9 +83,23 @@ class LayoutTest(unittest.TestCase):
 
     def test_website_can_be_served_without_repository_root(self):
         website = ROOT / "website"
-        parser = StaticAssets()
-        parser.feed((website / "index.html").read_text(encoding="utf-8"))
-        self.assertEqual(set(parser.paths), {"./css/style.css", "./js/main.js"})
-        for path in parser.paths:
-            self.assertTrue((website / path).is_file(), path)
+
+        def check_local_path(source, url):
+            parts = urlsplit(url)
+            if not parts.scheme and not parts.netloc and parts.path:
+                path = (source.parent / parts.path).resolve()
+                self.assertTrue(path.is_relative_to(website), url)
+                self.assertTrue((path / "index.html" if path.is_dir() else path).is_file(), url)
+
+        for name in ("index.html", "abot-world-0.html", "world-0.html"):
+            source = website / name
+            parser = StaticAssets()
+            parser.feed(source.read_text(encoding="utf-8"))
+            for url in parser.paths:
+                with self.subTest(source=name, url=url):
+                    check_local_path(source, url)
+        for source in (website / "css").glob("*.css"):
+            for url in re.findall(r"""url\(\s*['"]?([^'"\s)]+)""", source.read_text(encoding="utf-8")):
+                with self.subTest(source=source.name, url=url):
+                    check_local_path(source, url)
         self.assertIn("url=website/", (ROOT / "index.html").read_text())

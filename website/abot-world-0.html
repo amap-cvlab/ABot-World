@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#edf8fd"><meta name="description" content="ABot-World-0: infinite interactive world rollout on a single desktop GPU.">
+<title>ABot-World-0 | Infinite Interactive World Rollout</title>
+<link rel="icon" href="./assets/world-05/abot-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/world-0.css">
+<link rel="stylesheet" href="./css/hls-video.css">
+<script defer src="./assets/vendor/hls.js-1.7.4/hls.min.js"></script>
+<script defer src="./js/hls-video.js"></script>
+<script defer src="./js/world-0.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header shell">
+  <a class="brand" href="./" aria-label="ABot-World home"><img src="./assets/world-05/abot-logo-color.png" alt="ABot"><span>World</span></a>
+  <nav aria-label="Main navigation"><a href="#capabilities">Capabilities</a><a href="#worlds">Worlds</a><a href="https://arxiv.org/abs/2607.19191">Report</a><a href="./">Latest</a></nav>
+</header>
+<main id="main">
+  <section class="hero shell" aria-labelledby="title">
+    <div class="hero-copy"><h1 id="title">ABot-World-0</h1><p class="hero-lead">An interactive world model that responds to your actions.</p><p class="hero-description">Generate and explore continuous worlds in real time on a single desktop GPU.</p><div class="hero-actions"><a class="button primary" href="#worlds">Explore the worlds</a><a class="button secondary" href="https://arxiv.org/abs/2607.19191">Read the report</a></div></div>
+    <figure class="hero-media">
+      <div class="hls-frame">
+        <video controls playsinline preload="none" poster="./assets/gifs/ABot-World-0.gif" aria-label="ABot-World-0 interactive rollout" data-hls-status="world-0-footage-status">
+          <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/abot-world-0/launch/master.m3u8" type="application/vnd.apple.mpegurl">
+          <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-0-720P.mp4" type='video/mp4; codecs="hvc1.1.6.L120.B0, mp4a.40.2"' data-file-fallback>
+        </video>
+        <button class="hls-start" type="button" hidden>Play demonstration</button>
+      </div>
+      <figcaption>ABot-World-0 interactive rollout
+        <span id="world-0-footage-status" role="status" hidden>Video unavailable. <a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-0-720P.mp4">Open the original demonstration</a>.</span>
+        <noscript><a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-0-720P.mp4">Open the original demonstration</a></noscript>
+      </figcaption>
+    </figure>
+  </section>
+  <section class="overview shell" aria-labelledby="overview-title"><h2 id="overview-title">A world that keeps going.</h2><p>ABot-World-0 generates a continuous, action-conditioned world on a single desktop GPU. Use keyboard controls to navigate and guide the character as the scene unfolds beyond a fixed video length. LongForcing training uses extended self-rollouts to reduce accumulated drift.</p><div class="facts" aria-label="Reported performance on NVIDIA RTX 5090"><div><strong>720P</strong><span>resolution</span></div><div><strong>16 FPS</strong><span>up to</span></div><div><strong>1.2s</strong><span>latency</span></div><div><strong>19 GiB</strong><span>peak GPU memory</span></div></div><p class="fact-note">Measured on a single NVIDIA RTX 5090 across optimized low-bit configurations. Latency is measured from an action to the first decoded response frame; throughput and peak memory vary by configuration.</p></section>
+  <section class="long-run shell" aria-labelledby="long-run-title">
+    <div class="long-run-copy"><h2 id="long-run-title">A 24&#8209;hour rollout.</h2><p>Explore one complete, seekable 24-hour continuous rollout and five additional complete inference records.</p><a class="button primary" href="https://amap-cvlab.github.io/abot-world-0-24h/">Explore the 24-hour experiment</a></div>
+    <figure>
+      <div class="hls-frame">
+        <video controls playsinline preload="none" poster="./assets/world-0/rollout-24h.webp" aria-label="ABot-World-0 24-hour continuous rollout" data-hls-status="world-0-24h-status">
+          <source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/abot-world-0-24h/media/abot-world-0/v20260802-r1/24h-memory0057/master.m3u8" type="application/vnd.apple.mpegurl">
+        </video>
+        <button class="hls-start" type="button" hidden>Play 24-hour rollout</button>
+      </div>
+      <figcaption>24-hour continuous rollout experiment
+        <span id="world-0-24h-status" role="status" hidden>Video unavailable. <a href="https://amap-cvlab.github.io/abot-world-0-24h/">Open the 24-hour experiment</a>.</span>
+      </figcaption>
+    </figure>
+  </section>
+  <section class="capabilities shell" id="capabilities" aria-labelledby="capabilities-title"><div class="section-intro"><h2 id="capabilities-title">Built for interaction.</h2><p>Explore the capabilities behind continuous world rollout.</p></div><div class="feature-list">
+    <details open><summary><span>Action-Driven World Control</span><span aria-hidden="true">+</span></summary><p>Responds to user actions in real time, enabling continuous exploration instead of passive video playback.</p></details>
+    <details><summary><span>Real-Time Desktop Inference</span><span aria-hidden="true">+</span></summary><p>An optimized streaming stack makes action-conditioned generation responsive on a single NVIDIA RTX 5090.</p></details>
+    <details><summary><span>Open-Ended World Rollout</span><span aria-hidden="true">+</span></summary><p>Supports open-ended interactive world generation beyond fixed video-length limits.</p></details>
+    <details><summary><span>Open-Ended World Imagination</span><span aria-hidden="true">+</span></summary><p>Expands the world with new scenes and dynamics during rollout, avoiding scene lock-in, without prompt switching.</p></details>
+  </div></section>
+  <section class="worlds shell" id="worlds" aria-labelledby="worlds-title"><div class="worlds-heading"><div><h2 id="worlds-title">Explore created worlds.</h2><p>Choose a world to play its demonstration. <a href="https://abot-world.amap.com">Try it in Studio</a>.</p></div><div class="gallery-controls" aria-label="World gallery controls"><button type="button" data-scroll="-1" aria-label="Previous worlds">←</button><button type="button" data-scroll="1" aria-label="Next worlds">→</button></div></div><div class="worlds-grid" tabindex="0" aria-label="World demonstrations; scroll horizontally to see all eight">
+        <details class="world-card">
+          <summary><img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-0.png" alt="ABot-World case 0 preview" loading="lazy" width="1280" height="720"><span>Case 0<span aria-hidden="true">↗</span></span></summary>
+          <video controls playsinline preload="none" poster="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-0.png"><source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-0.mp4" type="video/mp4">Your browser does not support video playback. <a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-0.mp4">Open the video</a>.</video>
+        </details>
+        <details class="world-card">
+          <summary><img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-1.png" alt="ABot-World case 1 preview" loading="lazy" width="1280" height="720"><span>Case 1<span aria-hidden="true">↗</span></span></summary>
+          <video controls playsinline preload="none" poster="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-1.png"><source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-1.mp4" type="video/mp4">Your browser does not support video playback. <a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-1.mp4">Open the video</a>.</video>
+        </details>
+        <details class="world-card">
+          <summary><img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-2.png" alt="ABot-World case 2 preview" loading="lazy" width="1280" height="720"><span>Case 2<span aria-hidden="true">↗</span></span></summary>
+          <video controls playsinline preload="none" poster="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-2.png"><source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-2.mp4" type="video/mp4">Your browser does not support video playback. <a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-2.mp4">Open the video</a>.</video>
+        </details>
+        <details class="world-card">
+          <summary><img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-3.png" alt="ABot-World case 3 preview" loading="lazy" width="1280" height="720"><span>Case 3<span aria-hidden="true">↗</span></span></summary>
+          <video controls playsinline preload="none" poster="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-3.png"><source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-3.mp4" type="video/mp4">Your browser does not support video playback. <a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-3.mp4">Open the video</a>.</video>
+        </details>
+        <details class="world-card">
+          <summary><img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-4.png" alt="ABot-World case 4 preview" loading="lazy" width="1280" height="720"><span>Case 4<span aria-hidden="true">↗</span></span></summary>
+          <video controls playsinline preload="none" poster="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-4.png"><source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-4.mp4" type="video/mp4">Your browser does not support video playback. <a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-4.mp4">Open the video</a>.</video>
+        </details>
+        <details class="world-card">
+          <summary><img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-5.png" alt="ABot-World case 5 preview" loading="lazy" width="1280" height="720"><span>Case 5<span aria-hidden="true">↗</span></span></summary>
+          <video controls playsinline preload="none" poster="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-5.png"><source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-5.mp4" type="video/mp4">Your browser does not support video playback. <a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-5.mp4">Open the video</a>.</video>
+        </details>
+        <details class="world-card">
+          <summary><img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-6.png" alt="ABot-World case 6 preview" loading="lazy" width="1280" height="720"><span>Case 6<span aria-hidden="true">↗</span></span></summary>
+          <video controls playsinline preload="none" poster="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-6.png"><source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-6.mp4" type="video/mp4">Your browser does not support video playback. <a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-6.mp4">Open the video</a>.</video>
+        </details>
+        <details class="world-card">
+          <summary><img src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-7.png" alt="ABot-World case 7 preview" loading="lazy" width="1280" height="720"><span>Case 7<span aria-hidden="true">↗</span></span></summary>
+          <video controls playsinline preload="none" poster="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/imgs/ABot-World-Case-7.png"><source src="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-7.mp4" type="video/mp4">Your browser does not support video playback. <a href="https://amap-cvlab.oss-cn-zhangjiakou.aliyuncs.com/github/video/ABot-World-Case-7.mp4">Open the video</a>.</video>
+        </details>
+  </div><p class="gallery-hint">Scroll to see all eight worlds.</p></section>
+  <section class="resources shell" aria-labelledby="resources-title">
+    <h2 id="resources-title">Continue exploring.</h2>
+    <p>Read the report, access the model, or explore the code.</p>
+    <div class="resource-links">
+      <a href="https://github.com/amap-cvlab/ABot-World">Code&nbsp;<span aria-hidden="true">↗</span></a>
+      <a href="https://huggingface.co/acvlab/ABot-World-0-5B-LF">Model on Hugging Face&nbsp;<span aria-hidden="true">↗</span></a>
+      <a href="https://modelscope.cn/models/amap_cvlab/ABot-World-0-5B-LF">Model on ModelScope&nbsp;<span aria-hidden="true">↗</span></a>
+      <a href="https://www.reactor.inc/abot-world">Play on Reactor&nbsp;<span aria-hidden="true">↗</span></a>
+      <a href="https://abot-world.amap.com">Studio&nbsp;<span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+</main>
+<footer class="site-footer shell"><span>Copyright © 2026 Alibaba AMAP CV Lab. All rights reserved.</span><a href="./">ABot-World home</a></footer>
+</body></html>
