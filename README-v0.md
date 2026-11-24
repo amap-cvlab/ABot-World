@@ -216,7 +216,7 @@ If you find our work helpful, please cite our paper:
 
 ```
 @misc{jiang2026abotworld0,
-      title={{ABot-World-0}: Infinite Interactive World Rollout on a Single Desktop GPU}, 
+      title="{ABot-World-0}: Infinite Interactive World Rollout on a Single Desktop GPU",
       author={Fan Jiang and Zhaoxu Sun and Mengchao Wang and Ziyu Zhu and Chiyu Wang and Yunpeng Zhang and Wenlin Liu and Yun Wang and Xue Zheng and Rui Sun and Junfeng Ni and Hongyu Pan and Zhongxu Sun and Fei Yu and Zengye Ge and Mengmeng Du and Nianfei Fan and Mingchao Sun and Yu Liu and Yongchang and Yanqing Zhu and Jiahang Wang and Ning Ying and Yuze Xuan and Di Yang and Zhicheng Liu and Zhe Gao and Tingbing Xu and Jiacheng Sui and Wenjin Yang and Junnan Lai and Shufeng Liu and Yuan Liu and Zheng Zhou and Yingliang Peng and Dawei Cao and Kaifeng Sheng and Yuxiang Cai and Fei Lu and Mu Xu and Ning Guo},
       year={2026},
       eprint={2607.19191},
