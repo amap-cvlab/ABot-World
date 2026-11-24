@@ -7,6 +7,7 @@ import threading
 from pathlib import Path
 
 from web_client.config import MAX_VIDEO_HISTORY, AUTO_DELETE_OLD_VIDEOS, OUTPUT_DIR
+from web_client.example_scenes import ExampleSkill
 
 
 class StreamState:
@@ -18,6 +19,7 @@ class StreamState:
         self.frame_count: int = 0
         self.start_time: float = 0.0
         self.ref_image_path: str | None = None
+        self.example_skill: ExampleSkill | None = None
         # 键盘交互状态
         self.frontend_pressed: set = set()    # 当前物理按住的键
         self.frontend_activated: set = set()  # 自上次上报起曾激活的键（未被 worker 消费）

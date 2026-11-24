@@ -1,6 +1,1 @@
-vae_type: "taew2_2"
-use_fp8_gemm: true
-quant_type: "fp8-per-token"
-
-taew2_2_checkpoint: "checkpoints/ABot-World-0-5B-LF/taew2_2.pth"
-lightvae_encoder_checkpoint: "checkpoints/ABot-World-0-5B-LF/Wan2.2_VAE.pth"
+iris/default_config.yaml

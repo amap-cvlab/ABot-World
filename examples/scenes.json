@@ -1,0 +1,92 @@
+[
+  {
+    "label": "红杉林径",
+    "scene_prompt": "Rear third-person view of the original human hiker wearing the original outdoor clothes and backpack, standing on the same forest path among giant trees. Keep the original human anatomy, clothes, backpack, forest, lighting and camera view.",
+    "skills": [
+      {
+        "name": "暗影引力",
+        "prompt": "The character unleashes a skill - A pitch-black gravity well with a diameter several times the subject's height hangs ahead, its rim bending the scenery behind it into intense gravitational lensing as heavy dust clouds and angular gravel spiral rapidly into a weighty accretion flow around the dark core. Broad sheets of loose debris lift from the ground, collisions raise fine dust and fling out bands of alternating light and dark particles, and surrounding light and shadows bend with the flow while the subject stays outside the vortex and remains clearly visible."
+      },
+      {
+        "name": "重锤震地",
+        "prompt": "The character conjures a large stone hammer and swings it down onto the ground ahead. The hammer has one long dark handle and a huge rectangular gray stone head. A broad cloud of dust bursts outward at the impact, then the hammer crumbles into small falling stones."
+      }
+    ],
+    "image_hash": "9810c7b50f90eb92"
+  },
+  {
+    "label": "高山湖畔",
+    "scene_prompt": "Rear third-person view of the original human traveler wearing a blue coat, gray trousers and a dark backpack on rocks beside an alpine lake, surrounded by gray mountain ridges. Preserve the original natural human anatomy, appearance, lake, rocky shoreline and distant mountains.",
+    "skills": [
+      {
+        "name": "水球游鱼",
+        "prompt": "The character unleashes a skill - a huge transparent spherical globe of water forms in the air ahead. Several large bright orange fish swim visibly inside the clear water sphere, their bodies and tails circling in different directions. The suspended water globe ripples and sheds droplets while the fish remain clearly recognizable inside it."
+      },
+      {
+        "name": "水母浮游",
+        "prompt": "The character raises one hand and summons one large separate pink jellyfish floating above the rocks ahead. The complete jellyfish has one broad translucent domed bell, a thick scalloped lower rim and many long fine pink trailing tentacles. It pulses its bell and drifts slowly sideways, clearly separated from the character."
+      }
+    ],
+    "image_hash": "e5d3ac82c9a561d5"
+  },
+  {
+    "label": "乡间小路",
+    "scene_prompt": "Rear third-person view of the original human in a gray shirt and black trousers standing on a rural dirt path beside fields and trees. Preserve the original appearance, natural human anatomy, clothing, fields and path.",
+    "skills": [
+      {
+        "name": "群鸟出游",
+        "prompt": "The character unleashes a skill - dozens of large silver-white birds appear in the air ahead. Their separate feathered wings flap clearly as the flock circles above the ground, then flies outward in a wide fan. The flying birds remain distinct winged animals rather than tiny glitter particles."
+      },
+      {
+        "name": "白云托身",
+        "prompt": "The character unleashes a skill - A thick soft white cloud appears directly beneath both of the character feet. The whole cloud rises and carries the original upright character high into the air, with both feet standing clearly on top of the floating cloud."
+      }
+    ],
+    "image_hash": "37ff0564314c12d4"
+  },
+  {
+    "label": "极光雪原",
+    "scene_prompt": "Third-person rear view of the original person in orange winter clothes on the same snowy shore under green aurora. Keep the original human body, clothes, snow, shoreline, right-side sign and camera.",
+    "skills": [
+      {
+        "name": "掌焰喷涌",
+        "prompt": "The character unleashes a skill - A huge ten-meter-long horizontal cone of roaring orange fire erupts forward from the character. The continuous jet of flame stretches across the empty air, widening and scattering bright sparks."
+      },
+      {
+        "name": "红叶飞散",
+        "prompt": "The character raises one hand. Hundreds of large orange and red autumn leaves sweep across the whole open space ahead in a powerful gust. The separate broad leaves tumble and spin past the character, briefly filling the air before settling onto the ground."
+      }
+    ],
+    "image_hash": "fe7d590734555ed0"
+  },
+  {
+    "label": "沙海驼影",
+    "scene_prompt": "Rear third-person view of the original camel on desert dunes. The camel is the protagonist: preserve its fur color, long neck, hump, tail and four natural legs. No rider, human hands, clothes or bodily transformation appears. All four feet remain on the sand.",
+    "skills": [
+      {
+        "name": "雷霆放射",
+        "prompt": "The camel unleashes a skill - A huge bright blue-white branching lightning web erupts in the air ahead, several times larger than the subject. Thick lightning bolts fork repeatedly and spread into a wide electric cage. Blue light illuminates the nearby ground. The lightning bursts into sparks and vanishes. The camel keeps its original natural body and four legs, standing outside the magical effect."
+      },
+      {
+        "name": "奔涌水环",
+        "prompt": "The camel unleashes a skill - A large deep-blue and turquoise ring of rushing water forms ahead, with white foam and splashing droplets. Glowing fish swim rapidly around the broad water ring. The ring expands outward, bursts into water spray, and fades away. The camel keeps its original natural body and four legs, standing outside the magical effect."
+      }
+    ],
+    "image_hash": "8a0f99ae390546c4"
+  },
+  {
+    "label": "暮城猎魔",
+    "scene_prompt": "Third-person game view from behind. The same silver-haired human in dark clothes stands facing the distant castle on a wet path among bare trees and grass. His hands are free. Keep the original person, natural human body, dark cloak, leather clothes, swords carried on the back, castle, trees, muddy ground and camera view.",
+    "skills": [
+      {
+        "name": "圣光冲天",
+        "prompt": "The character unleashes a skill - A gigantic straight column of brilliant golden light erupts vertically from the ground ahead. Tiny sparkling motes stream upward along its bright solid core, reaching high above the unchanged original character."
+      },
+      {
+        "name": "烈焰环阵",
+        "prompt": "The character unleashes a skill - The character stamps one foot and a low circular ring of orange flames ignites on the ground ahead. The flaming ring expands rapidly outward across the surface, leaving a dark scorched circle before fading. Preserve the character body and the original landscape around the low ground fire."
+      }
+    ],
+    "image_hash": "a25f518da9964a39"
+  }
+]

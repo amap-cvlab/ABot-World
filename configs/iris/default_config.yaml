@@ -1,0 +1,6 @@
+vae_type: "taew2_2"
+use_fp8_gemm: false
+quant_type: "fp8-per-token"
+
+taew2_2_checkpoint: "checkpoints/ABot-World-0-5-5B-Iris/taew2_2.pth"
+lightvae_encoder_checkpoint: "checkpoints/ABot-World-0-5-5B-Iris/Wan2.2_VAE.pth"

@@ -12,6 +12,7 @@ if str(_web_client_dir) not in sys.path:
 
 from web_client.config import KEY_ORDER, CONFLICT_GROUPS
 from web_client.state import state
+from abot_world.iris.utils.action_conditions import CONTROL_TEXT
 
 
 def _resolve_conflicts(keys: set, high_priority: set) -> set:
@@ -33,24 +34,25 @@ def _resolve_conflicts(keys: set, high_priority: set) -> set:
     return result
 
 
-def _sample_key_snapshot() -> dict:
+def _sample_key_snapshot():
     """在每个 block 开始前采样一次按键状态。
 
     合并规则：combined = pressed ∪ activated，冲突时 activated 优先于 pressed。
     采样后清空 activated（消费），pressed 不动（持续按住继续生效）。
 
-    返回值：大写键名 -> bool 的 dict，与 pipeline.set_act() 接口一致。
-    例：{'W': True, 'A': False, 'S': False, 'D': False, 'I': False, 'J': False, 'K': False, 'L': False}
+    返回移动/视角字典，以及基础动作的按住和点按集合。
     """
     with state._key_lock:
         pressed = state.frontend_pressed
         activated = state.frontend_activated
         combined = pressed | activated
         combined = _resolve_conflicts(combined, high_priority=activated)
+        held_actions = pressed & CONTROL_TEXT.keys()
+        tapped_actions = activated & CONTROL_TEXT.keys()
         state.frontend_activated.clear()
     snapshot = {k: (k in combined) for k in KEY_ORDER}
     state.key_snapshot = snapshot
-    return snapshot
+    return snapshot, held_actions, tapped_actions
 
 
 def on_key_update(key_json: str):

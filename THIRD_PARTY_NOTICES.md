@@ -11,7 +11,7 @@ included, adapted, or required by this repository.
 - Copyright notice retained in source files:
   `Copyright 2024-2025 The Alibaba Wan Team Authors. All rights reserved.`
 - Local usage: model, attention, text encoder, tokenizer, VAE, and related Wan
-  modules under `wan/`.
+  modules under `abot_world/iris/wan/` and `abot_world/bit/wan/`.
 
 ## AngelSlim
 
@@ -31,17 +31,17 @@ included, adapted, or required by this repository.
 ## taehv
 
 - Upstream: https://github.com/madebyollin/taehv
-- Local usage: TAeW2.2 lightweight streaming VAE wrapper and related code paths.
+- Local usage: TAEW2.2 lightweight streaming VAE wrapper and related code paths.
 
 ## Helios
 
 - Upstream: https://github.com/PKU-YuanGroup/Helios
 - Local usage: optimized Triton RoPE and normalization kernels under
-  `wan/modules/helios_kernels/`.
+  `abot_world/iris/wan/modules/helios_kernels/`.
 
 ## Demo Assets
 
 The sample images and pre-generated reference-image cache files under
-`web_client/datasets/images/` and `outputs/ref_image_cache/` are included for
+`examples/first_frames/` and `examples/references/` are included for
 running the demo presets. Replace or remove them before redistribution if your
 release process requires separate asset provenance records.
