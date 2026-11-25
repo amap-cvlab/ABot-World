@@ -28,7 +28,8 @@
 
 ## 📢 News
 
-- **2026-11-24:** ABot-World-0.5 is here — Iris, Iris-BiT, and six interactive examples are now open. The v0.5 technical report is coming soon.
+- **2026-11-25:** Meet ABot-World 0.5 Halo on ![Reactor](https://go.reactor.inc/abot-halo), the most phsically real and most interactive world model we've ever build!
+- **2026-11-24:** ABot-World 0.5 is here — Iris, Iris-BiT, and six interactive examples are now open. The v0.5 technical report is coming soon.
 
 ## 🚀 Highlights
 
@@ -43,8 +44,8 @@
 
 | Model | Hugging Face | ModelScope |
 | --- | --- | --- |
-| Iris | [Iris](https://huggingface.co/acvlab/ABot-World-0-5-5B-Iris) | [Iris](https://modelscope.cn/models/amap_cvlab/ABot-World-0-5-5B-Iris) |
-| Iris-BiT | [Iris-BiT](https://huggingface.co/acvlab/ABot-World-0-5-5B-Iris-BiT) | [Iris-BiT](https://modelscope.cn/models/amap_cvlab/ABot-World-0-5-5B-Iris-BiT) |
+| Iris | [https://huggingface.co/acvlab/ABot-World-0-5-5B-Iris](https://huggingface.co/acvlab/ABot-World-0-5-5B-Iris) | [https://modelscope.cn/models/amap_cvlab/ABot-World-0-5-5B-Iris](https://modelscope.cn/models/amap_cvlab/ABot-World-0-5-5B-Iris) |
+| Iris-BiT | [https://huggingface.co/acvlab/ABot-World-0-5-5B-Iris-BiT](https://huggingface.co/acvlab/ABot-World-0-5-5B-Iris-BiT) | [https://modelscope.cn/models/amap_cvlab/ABot-World-0-5-5B-Iris-BiT](https://modelscope.cn/models/amap_cvlab/ABot-World-0-5-5B-Iris-BiT) |
 
 <a name="setup"></a>
 
