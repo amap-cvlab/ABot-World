@@ -75,6 +75,8 @@ modelscope download amap_cvlab/ABot-World-0-5-5B-Iris --local_dir checkpoints/AB
 modelscope download amap_cvlab/ABot-World-0-5-5B-Iris-BiT --local_dir checkpoints/ABot-World-0-5-5B-Iris-BiT
 ```
 
+**Custom resolution.** Iris defaults to 720p-class output (1280 × 704). For a custom `W × H` (both divisible by 32), set the last two values of `image_or_video_shape` in [`configs/iris/long_forcing_dmd.yaml`](configs/iris/long_forcing_dmd.yaml) to `[H // 16, W // 16]`; for Gradio, also update `STREAM_WIDTH` and `STREAM_HEIGHT` in [`abot_world/iris/config.py`](abot_world/iris/config.py). The [KV cache allocator](abot_world/iris/pipeline/causal_inference.py#L859) computes `local_attn_size * (H // 32) * (W // 32) + extra_tokens`, where `extra_tokens` is computed from the references. The default window holds `21 * 22 * 40 = 18,480` video tokens before reference tokens.
+
 ## 🤗 Gradio Demo
 
 ```bash
